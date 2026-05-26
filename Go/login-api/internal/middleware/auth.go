@@ -5,21 +5,36 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	"login-api/internal/utils"
 )
 
-func Auth() gin.HandlerFunc {
+func Auth(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		token := c.GetHeader("Authorization")
-		// Kiểm tra Authorization bắt đầu bằng chữ "Bearer " hay không. Chưa thực sự giải mã (Decode/Verify) xem Token đó có hợp lệ hay đã hết hạn
-		if !strings.HasPrefix(token, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "unauthorized",
-			})
+		authHeader := c.GetHeader("Authorization")
 
+		if !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "missing token",
+			})
 			c.Abort()
 			return
 		}
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		userId, err := utils.ParseToken(secret, tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "invalid token",
+			})
+			c.Abort()
+			return
+		}
+
+		// gắn vào context
+		c.Set("userId", userId)
 
 		c.Next()
 	}
