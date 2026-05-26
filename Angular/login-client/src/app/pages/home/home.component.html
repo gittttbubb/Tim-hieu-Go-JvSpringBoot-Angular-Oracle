@@ -1,0 +1,14 @@
+<div class="home-container">
+  <div class="navbar">
+    <h2>Home Dashboard</h2>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </div>
+
+  <div class="content">
+    <button class="api-btn" (click)="getMe()">Call API /me</button>
+
+    <div class="result-box">
+      <pre>{{ data | json }}</pre>
+    </div>
+  </div>
+</div>
