@@ -8,27 +8,61 @@ import (
 )
 
 type AuthService interface {
-	Login(username string, password string) (string, error)
+	Login(
+		username string,
+		password string,
+	) (string, error)
 }
 
 type authService struct {
 	repo repository.AuthRepository
+
 	secret string
 }
 
-func NewAuthService(repo repository.AuthRepository, secret string) AuthService {
+func NewAuthService(
+	repo repository.AuthRepository,
+
+	secret string,
+) AuthService {
+
 	return &authService{
 		repo: repo,
 		secret: secret,
 	}
 }
 
-func (s *authService) Login(username string, password string) (string, error) {
-	user := s.repo.FindByUsername(username)
+func (s *authService) Login(
+	username string,
+	password string,
+) (string, error) {
 
-	if user == nil {
-		return "", errors.New("invalid account")
+	user,
+	err :=
+		s.repo.FindByUsername(
+			username,
+		)
+
+	if err != nil {
+		return "",
+			errors.New(
+				"account not found",
+			)
 	}
 
-	return utils.GenerateToken(s.secret, user.ID)
+	if !utils.VerifyPassword(
+		user.Password,
+		password,
+	) {
+
+		return "",
+			errors.New(
+				"wrong password",
+			)
+	}
+
+	return utils.GenerateToken(
+		s.secret,
+		user.ID,
+	)
 }

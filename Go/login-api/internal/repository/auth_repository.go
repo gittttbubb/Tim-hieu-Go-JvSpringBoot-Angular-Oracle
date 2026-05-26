@@ -1,24 +1,62 @@
 package repository
 
 import (
+	"database/sql"
+
 	"login-api/internal/model"
 )
 
 type AuthRepository interface {
-	FindByUsername(username string) *model.User
+	FindByUsername(
+		username string,
+	) (*model.User, error)
 }
 
-type authRepository struct{}
-
-func NewAuthRepository() AuthRepository {
-	return &authRepository{}
+type authRepository struct {
+	db *sql.DB
 }
 
-func (r *authRepository) FindByUsername(username string) *model.User {
-	return &model.User{
-		ID: 1,
-		Username: "admin",
-		Password: "$2a$10$N9qo8uLOickgx2ZMRZoMye",
-		Role: "ADMIN",
+func NewAuthRepository(
+	db *sql.DB,
+) AuthRepository {
+
+	return &authRepository{
+		db: db,
 	}
+}
+
+func (r *authRepository) FindByUsername(
+	username string,
+) (*model.User, error) {
+
+	query := `
+	SELECT
+	ID,
+	USERNAME,
+	PASSWORD,
+	ROLE
+	FROM USERS
+	WHERE USERNAME=:1
+	`
+
+	var user model.User
+
+	err :=
+		r.db.
+			QueryRow(
+				query,
+				username,
+			).
+			Scan(
+				&user.ID,
+				&user.Username,
+				&user.Password,
+				&user.Role,
+			)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

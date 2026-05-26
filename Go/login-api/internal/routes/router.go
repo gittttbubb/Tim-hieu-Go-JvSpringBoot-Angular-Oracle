@@ -14,7 +14,7 @@ func Setup(auth *handler.AuthHandler) *gin.Engine {
 	api := r.Group("/api")
 
 	api.POST("/auth/login", auth.Login)
-
+	
 	user := api.Group("/users")
 	user.Use(middleware.Auth())
 
