@@ -4,16 +4,14 @@ import "os"
 
 type Config struct {
 	Port string
-
 	JWTSecret string
-
 	DBUser string
 	DBPassword string
 	DBHost string
 	DBPort string
 	DBService string
 }
-
+// Đọc các biến môi trường và trả về struct Config
 func Load() Config {
 
 	return Config{
