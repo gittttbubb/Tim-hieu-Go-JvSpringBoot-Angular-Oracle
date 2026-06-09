@@ -14,31 +14,33 @@ func Setup(auth *handler.AuthHandler, authService service.AuthService, cfg confi
 	api := r.Group("/api")
 
 	api.POST("/auth/login", auth.Login)
+	
+	api.POST("/auth/register", auth.Register)
 
 	user := api.Group("/users")
 	user.Use(middleware.Auth(cfg.JWTSecret))
 
 	user.GET("/me", func(c *gin.Context) {
+		// 1. lấy userId từ middleware
+		userID := c.GetInt("userId")
+		// 2. gọi service
+		user, err := authService.GetUserByID(userID)
+		if err != nil {
+			c.JSON(404, gin.H{
+				"message": "user not found",
+			})
+			return
+		}
+		
+		// 3. trả response
+		c.JSON(200, gin.H{
+			"id":       user.ID,
+			"username": user.Username,
+			"role":     user.Role,
 
-	// 1. lấy userId từ middleware
-	userID := c.GetInt("userId")
-
-	// 2. gọi service
-	user, err := authService.GetUserByID(userID)
-	if err != nil {
-		c.JSON(404, gin.H{
-			"message": "user not found",
 		})
-		return
-	}
-
-	// 3. trả response
-	c.JSON(200, gin.H{
-		"id":       user.ID,
-		"username": user.Username,
-		"role":     user.Role,
+		// Tìm cách trả về theo kiểu object, không phải map[string]interface{}
 	})
-})
 
 	return r
 }
