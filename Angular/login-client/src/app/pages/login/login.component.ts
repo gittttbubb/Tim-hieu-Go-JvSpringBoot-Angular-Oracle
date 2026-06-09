@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from '../auth.service';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
 import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -20,11 +20,11 @@ export class LoginComponent {
   login() {
     this.auth.login(this.username, this.password)
       .subscribe({
-        next: () => {
-          this.router.navigate(['/home']);
-        },
         error: (err) => {
           alert(err.error.message);
+        },
+        complete: () => {
+          this.router.navigate(['/home']);
         }
       });
   }

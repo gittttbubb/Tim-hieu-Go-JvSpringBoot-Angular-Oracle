@@ -10,6 +10,6 @@ export const authGuard: CanActivateFn = () => {
     router.navigate(['/']);
     return false;
   }
-
+  // THêm Role, filter với từng router 
   return true;
 };

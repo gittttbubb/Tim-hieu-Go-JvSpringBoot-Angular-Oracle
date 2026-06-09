@@ -21,16 +21,17 @@ export class AuthService {
       })
     );
   }
-
+  register(username: string, password: string) {
+    return this.http.post<any>(`${this.API}/auth/register`, {
+      username,
+      password
+    });
+  }
   getToken() {
     return localStorage.getItem('token');
   }
 
   logout() {
     localStorage.removeItem('token');
-  }
-
-  isLoggedIn(): boolean {
-    return !!this.getToken();
   }
 }

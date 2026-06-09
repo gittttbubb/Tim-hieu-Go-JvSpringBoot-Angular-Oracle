@@ -1,0 +1,23 @@
+<div class="register-page">
+  <div class="register-card">
+    <div class="register-header">
+      <h2>Đăng ký</h2>
+      <p>Tạo tài khoản mới để bắt đầu.</p>
+    </div>
+
+    <div class="register-form">
+      <label for="username">Tên đăng nhập</label>
+      <input id="username" type="text" placeholder="Nhập tên đăng nhập" [(ngModel)]="username" />
+
+      <label for="password">Mật khẩu</label>
+      <input id="password" type="password" placeholder="Nhập mật khẩu" [(ngModel)]="password" />
+
+      <button class="register-button" (click)="register()">Đăng ký</button>
+    </div>
+
+    <div class="register-footer">
+      <span>Bạn đã có tài khoản?</span>
+      <a routerLink="/login">Đăng nhập ngay</a>
+    </div>
+  </div>
+</div>

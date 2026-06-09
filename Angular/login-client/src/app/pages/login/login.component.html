@@ -1,0 +1,23 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Đăng nhập</h2>
+      <p>Truy cập tài khoản của bạn để bắt đầu.</p>
+    </div>
+    <!-- TÌm hiểu  khác nhau [] () -->
+    <div class="login-form">
+      <label for="login-username">Tên đăng nhập</label>
+      <input id="login-username" [(ngModel)]="username" placeholder="Tên đăng nhập" />
+
+      <label for="login-password">Mật khẩu</label>
+      <input id="login-password" [(ngModel)]="password" type="password" placeholder="Mật khẩu" />
+
+      <button class="login-button" (click)="login()">Đăng nhập</button>
+    </div>
+
+    <div class="login-footer">
+      <span>Chưa có tài khoản?</span>
+      <a routerLink="/register">Đăng ký ngay</a>
+    </div>
+  </div>
+</div>
