@@ -1,0 +1,30 @@
+<div class="container">
+
+    <h2>
+        Danh sách tài khoản
+    </h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Action</th>
+        </tr>
+        <tr *ngFor="let user of users">
+            <td>
+                {{user.id}}
+            </td>
+            <td>
+                {{user.username}}
+            </td>
+            <td>
+                {{user.role}}
+            </td>
+            <td>
+                <button *ngIf="user.role === 'USER'" (click)="promote(user.id)">
+                    Promote
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>

@@ -1,31 +1,37 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
-  data: any;
+  user: any;
+  role = '';
 
   constructor(
-    private http: HttpClient,
     private auth: AuthService,
     private router: Router
   ) {}
 
-  getMe() {
-    this.http.get('http://localhost:8080/api/users/me')
-      .subscribe(res => this.data = res);
+  ngOnInit() {
+    this.auth.getMe()
+      .subscribe({
+        next: res => {
+          this.user = res;
+          this.role = res.role;
+        }
+      });
   }
 
   logout() {
     this.auth.logout();
+    localStorage.removeItem('role');
     this.router.navigate(['/']);
   }
 }

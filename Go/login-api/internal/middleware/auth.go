@@ -24,7 +24,7 @@ func Auth(secret string) gin.HandlerFunc {
 		}
 		// strings.TrimPrefix loại bỏ phần "Bearer " giữ lại phần token
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		userId, err := utils.ParseToken(secret, tokenString)
+		tokenInfo, err := utils.ParseToken(secret, tokenString)
 		// Kiểm tra có lỗi không
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -34,9 +34,25 @@ func Auth(secret string) gin.HandlerFunc {
 			return
 		}
 
-		// gắn vào context
-		c.Set("userId", userId)
+		c.Set("userId", tokenInfo.UserID)
+		c.Set("role", tokenInfo.Role)
 
 		c.Next()
 	}
+}
+func Role(role string) gin.HandlerFunc {
+    return func(c *gin.Context) {
+
+        currentRole := c.GetString("role")
+
+        if currentRole != role {
+            c.JSON(http.StatusForbidden, gin.H{
+                "message": "forbidden",
+            })
+            c.Abort()
+            return
+        }
+
+        c.Next()
+    }
 }

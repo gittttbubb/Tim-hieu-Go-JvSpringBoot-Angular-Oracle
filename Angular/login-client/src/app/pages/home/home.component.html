@@ -1,14 +1,26 @@
 <div class="home-container">
   <div class="navbar">
-    <h2>Home Dashboard</h2>
-    <button class="logout-btn" (click)="logout()">Logout</button>
+    <h2>Dashboard </h2>
+    <button (click)="logout()">
+      Logout
+    </button>
   </div>
-
-  <div class="content">
-    <button class="api-btn" (click)="getMe()">Call API /me</button>
-
-    <div class="result-box">
-      <pre>{{ data | json }}</pre>
-    </div>
+  <div class="welcome">
+    <h3>Xin chào {{user?.username}}</h3>
+    <p>
+      Role:
+      {{user?.role}}
+    </p>
+  </div>
+  <div class="menu">
+    <a routerLink="/profile" class="menu-card">
+      Thông tin cá nhân
+    </a>
+    <a routerLink="/change-password" class="menu-card">
+      Đổi mật khẩu
+    </a>
+    <a *ngIf="role === 'ADMIN'" routerLink="/list-users" class="menu-card">
+      Danh sách tài khoản
+    </a>
   </div>
 </div>

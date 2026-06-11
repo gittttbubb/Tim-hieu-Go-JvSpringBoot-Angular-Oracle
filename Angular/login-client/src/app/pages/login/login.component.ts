@@ -20,11 +20,11 @@ export class LoginComponent {
   login() {
     this.auth.login(this.username, this.password)
       .subscribe({
-        error: (err) => {
-          alert(err.error.message);
-        },
-        complete: () => {
-          this.router.navigate(['/home']);
+        next: () => {
+          this.auth.getMe().subscribe(user => {
+              localStorage.setItem('role', user.role);
+              this.router.navigate(['/home']);
+            });
         }
       });
   }

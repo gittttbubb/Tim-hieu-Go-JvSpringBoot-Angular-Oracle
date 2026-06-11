@@ -19,7 +19,6 @@ func Setup(auth *handler.AuthHandler, authService service.AuthService, cfg confi
 
 	user := api.Group("/users")
 	user.Use(middleware.Auth(cfg.JWTSecret))
-
 	user.GET("/me", func(c *gin.Context) {
 		// 1. lấy userId từ middleware
 		userID := c.GetInt("userId")
@@ -41,6 +40,16 @@ func Setup(auth *handler.AuthHandler, authService service.AuthService, cfg confi
 		})
 		// Tìm cách trả về theo kiểu object, không phải map[string]interface{}
 	})
+	user.PUT("/profile", auth.UpdateProfile)
+	user.PUT("/change-password", auth.ChangePassword)
 
+	admin := api.Group("/admin")
+	admin.Use(
+		middleware.Auth(cfg.JWTSecret),
+		middleware.Role("ADMIN"),
+	)
+	admin.GET("/list-users", auth.GetAllUsers)
+	admin.PUT("/users/promote/:id", auth.PromoteToAdmin)
+	
 	return r
 }

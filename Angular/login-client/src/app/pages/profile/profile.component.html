@@ -1,0 +1,16 @@
+<div class="container">
+    <h2>Thông tin cá nhân</h2>
+    <p>
+        ID:
+        {{user?.id}}
+    </p>
+    <p>
+        Role:
+        {{user?.role}}
+    </p>
+    <label>Username</label>
+    <input [(ngModel)]="username">
+    <button (click)="updateProfile()">
+        Cập nhật
+    </button>
+</div>

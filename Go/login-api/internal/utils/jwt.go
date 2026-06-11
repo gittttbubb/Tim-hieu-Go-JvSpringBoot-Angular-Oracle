@@ -1,16 +1,18 @@
 package utils
 
 import (
-	"time"
 	"errors"
+	"login-api/internal/dto"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GenerateToken(secret string, userId int) (string, error) {
+func GenerateToken(secret string, userId int, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"userId": userId,
+		"role": role,
 		"exp": time.Now().Add(24 * time.Hour).Unix(),
 	}
 
@@ -26,30 +28,39 @@ func VerifyPassword(hash string, password string,) bool {
 	return err == nil
 }
 
-func ParseToken(secret string, tokenString string) (int, error) {
+func ParseToken(secret string, tokenString string) (*dto.TokenInfo, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// kiểm tra token gửi lên có đúng là được ký bằng thuật toán mã hóa đối xứng HMAC
+
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
+
 		return []byte(secret), nil
 	})
 
 	if err != nil || !token.Valid {
-		return 0, errors.New("invalid token")
+		return nil, errors.New("invalid token")
 	}
-	// Ép kiểu dữ liệu token.Claims về dạng jwt.MapClaims để có thể truy cập các trường dữ liệu bên trong payload dưới dạng Key-Value.
+
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return 0, errors.New("invalid claims")
+		return nil, errors.New("invalid claims")
 	}
 
 	userIdFloat, ok := claims["userId"].(float64)
 	if !ok {
-		return 0, errors.New("invalid userId")
+		return nil, errors.New("invalid userId")
 	}
 
-	return int(userIdFloat), nil
+	role, ok := claims["role"].(string)
+	if !ok {
+		return nil, errors.New("invalid role")
+	}
+
+	return &dto.TokenInfo{
+		UserID: int(userIdFloat),
+		Role:   role,
+	}, nil
 }
 
 func HashPassword(password string) (string, error) {
