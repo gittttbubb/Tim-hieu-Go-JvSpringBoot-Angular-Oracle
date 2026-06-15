@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -15,12 +16,12 @@ import (
 )
 
 func main() {
-
-	// =========================
 	// Load Configuration
-	// =========================
-
 	cfg, err := config.Load()
+	log.Printf(
+		"Environment: %s",
+		os.Getenv("APP_ENV"),
+	)
 	if err != nil {
 		log.Fatalf(
 			"failed to load config: %v",
@@ -28,10 +29,7 @@ func main() {
 		)
 	}
 
-	// =========================
 	// Connect Oracle Database
-	// =========================
-
 	db, err := database.Connect(cfg)
 	if err != nil {
 		log.Fatalf(
@@ -39,155 +37,48 @@ func main() {
 			err,
 		)
 	}
-
 	defer db.Close()
 
-	// =========================
 	// Repositories
-	// =========================
-
 	authRepo := repository.NewAuthRepository(db)
-
 	userRepo := repository.NewUserRepository(db)
-
 	roleRepo := repository.NewRoleRepository(db)
-
 	permissionRepo := repository.NewPermissionRepository(db)
-
 	rolePermissionRepo := repository.NewRolePermissionRepository(db)
-
 	overrideRepo := repository.NewUserPermissionOverrideRepository(db)
-
 	passwordResetRepo := repository.NewPasswordResetRepository(db)
-
 	auditRepo := repository.NewAuditRepository(db)
 
-	// =========================
 	// Services
-	// =========================
+	permissionResolverService := service.NewPermissionResolverService(userRepo, permissionRepo, overrideRepo,)
+	authService := service.NewAuthService(authRepo, permissionResolverService, cfg,)
+	userService := service.NewUserService(userRepo, roleRepo,)
+	roleService := service.NewRoleService(roleRepo,)
+	permissionService := service.NewPermissionService(permissionRepo)
+	rolePermissionService := service.NewRolePermissionService(rolePermissionRepo, roleRepo, permissionRepo,)
+	userOverrideService := service.NewUserPermissionOverrideService(overrideRepo, userRepo, permissionRepo,)
+	passwordResetService := service.NewPasswordResetService(authRepo, userRepo, passwordResetRepo,)
+	auditService :=service.NewAuditService(auditRepo,)
 
-	permissionResolverService :=
-		service.NewPermissionResolverService(
-			userRepo,
-			permissionRepo,
-			overrideRepo,
-		)
-
-	authService :=
-		service.NewAuthService(
-			authRepo,
-			permissionResolverService,
-			cfg,
-		)
-
-	userService :=
-		service.NewUserService(
-			userRepo,
-			roleRepo,
-		)
-
-	roleService :=
-		service.NewRoleService(
-			roleRepo,
-		)
-
-	permissionService :=
-		service.NewPermissionService(
-			permissionRepo,
-		)
-
-	rolePermissionService :=
-		service.NewRolePermissionService(
-			rolePermissionRepo,
-			roleRepo,
-			permissionRepo,
-		)
-
-	userOverrideService :=
-		service.NewUserPermissionOverrideService(
-			overrideRepo,
-			userRepo,
-			permissionRepo,
-		)
-
-	passwordResetService :=
-		service.NewPasswordResetService(
-			authRepo,
-			userRepo,
-			passwordResetRepo,
-		)
-
-	auditService :=
-		service.NewAuditService(
-			auditRepo,
-		)
-
-	// =========================
 	// Handlers
-	// =========================
+	authHandler := handler.NewAuthHandler(authService,)
+	userHandler := handler.NewUserHandler(userService,)
+	roleHandler := handler.NewRoleHandler(roleService,)
+	permissionHandler := handler.NewPermissionHandler(permissionService,)
+	rolePermissionHandler := handler.NewRolePermissionHandler(rolePermissionService,)
+	userOverrideHandler := handler.NewUserPermissionOverrideHandler(userOverrideService,)
+	passwordResetHandler := handler.NewPasswordResetHandler(passwordResetService,)
+	auditHandler := handler.NewAuditHandler(auditService,)
 
-	authHandler :=
-		handler.NewAuthHandler(
-			authService,
-		)
-
-	userHandler :=
-		handler.NewUserHandler(
-			userService,
-		)
-
-	roleHandler :=
-		handler.NewRoleHandler(
-			roleService,
-		)
-
-	permissionHandler :=
-		handler.NewPermissionHandler(
-			permissionService,
-		)
-
-	rolePermissionHandler :=
-		handler.NewRolePermissionHandler(
-			rolePermissionService,
-		)
-
-	userOverrideHandler :=
-		handler.NewUserPermissionOverrideHandler(
-			userOverrideService,
-		)
-
-	passwordResetHandler :=
-		handler.NewPasswordResetHandler(
-			passwordResetService,
-		)
-
-	auditHandler :=
-		handler.NewAuditHandler(
-			auditService,
-		)
-
-	// =========================
 	// Middlewares
-	// =========================
 
-	authMiddleware :=
-		middleware.NewAuthMiddleware(
-			cfg.JWT.Secret,
-		)
+	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret,)
+	permissionMiddleware := middleware.NewPermissionMiddleware()
 
-	permissionMiddleware :=
-		middleware.NewPermissionMiddleware()
-
-	// =========================
 	// Fiber App
-	// =========================
-
 	app := fiber.New()
 
-	// =========================
 	// Routes
-	// =========================
-
 	routes.RegisterRoutes(
 		app,
 		routes.RouteConfig{
@@ -205,15 +96,11 @@ func main() {
 		},
 	)
 
-	// =========================
 	// Start Server
-	// =========================
-
 	log.Printf(
 		"Server started on port %s",
 		cfg.Server.Port,
 	)
-
 	if err := app.Listen(
 		":" + cfg.Server.Port,
 	); err != nil {

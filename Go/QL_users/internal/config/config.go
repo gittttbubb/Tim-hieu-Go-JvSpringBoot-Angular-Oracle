@@ -1,6 +1,11 @@
 package config
 // viper: quản lý cấu hình, đọc từ file YAML, JSON
-import "github.com/spf13/viper"
+import (
+	"os"
+	"fmt"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	Server   ServerConfig
@@ -27,7 +32,16 @@ type JWTConfig struct {
 
 func Load() (*Config, error) {
 
-	viper.SetConfigName("config")
+	env := os.Getenv("APP_ENV")
+
+	if env == "" {
+		env = "dev"
+	}
+
+	viper.SetConfigName(
+		fmt.Sprintf("config.%s", env),
+	)
+
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./configs")
 

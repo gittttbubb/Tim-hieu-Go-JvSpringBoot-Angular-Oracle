@@ -46,164 +46,47 @@ func registerPasswordResetRoutes(api fiber.Router, cfg RouteConfig,) {
 func registerUserRoutes(api fiber.Router, cfg RouteConfig,) {
 	users := api.Group("/users", cfg.AuthMiddleware.RequireAuth(),)
 	users.Get("/",cfg.PermissionMiddleware.Require("USER_VIEW",),cfg.UserHandler.ListUsers,)
-	users.Get("/:id",cfg.PermissionMiddleware.Require("USER_VIEW",),
-		middleware.DataScope("USER_VIEW",),
-		cfg.UserHandler.GetByID,
-	)
+	users.Get("/:id",cfg.PermissionMiddleware.Require("USER_VIEW",), middleware.DataScope("USER_VIEW",), cfg.UserHandler.GetByID,)
 	users.Post("/",cfg.PermissionMiddleware.Require("USER_CREATE"), cfg.UserHandler.CreateUser,)
-	users.Put("/:id",cfg.PermissionMiddleware.Require("USER_UPDATE",),
-		middleware.DataScope("USER_UPDATE"),
-		cfg.UserHandler.UpdateUser,
-	)
-	users.Delete("/:id", cfg.PermissionMiddleware.Require("USER_DELETE",),
-		middleware.DataScope("USER_DELETE",),
-		cfg.UserHandler.DeleteUser,
-	)
+	users.Put("/:id",cfg.PermissionMiddleware.Require("USER_UPDATE",), middleware.DataScope("USER_UPDATE"), cfg.UserHandler.UpdateUser,)
+	users.Delete("/:id", cfg.PermissionMiddleware.Require("USER_DELETE",), middleware.DataScope("USER_DELETE",), cfg.UserHandler.DeleteUser,)
 }
 
 func registerRoleRoutes(api fiber.Router, cfg RouteConfig,) {
 	roles := api.Group("/roles", cfg.AuthMiddleware.RequireAuth(),)
 	roles.Get("/", cfg.PermissionMiddleware.Require("ROLE_VIEW",),cfg.RoleHandler.ListRoles,)
-	roles.Get(
-		"/:id",
-		cfg.PermissionMiddleware.Require(
-			"ROLE_VIEW",
-		),
-		cfg.RoleHandler.GetRoleByID,
-	)
-	roles.Post(
-		"/",
-		cfg.PermissionMiddleware.Require(
-			"ROLE_CREATE",
-		),
-		cfg.RoleHandler.CreateRole,
-	)
-	roles.Put(
-		"/:id",
-		cfg.PermissionMiddleware.Require(
-			"ROLE_UPDATE",
-		),
-		cfg.RoleHandler.UpdateRole,
-	)
-	roles.Delete(
-		"/:id",
-		cfg.PermissionMiddleware.Require(
-			"ROLE_DELETE",
-		),
-		cfg.RoleHandler.DeleteRole,
-	)
+	roles.Get("/:id", cfg.PermissionMiddleware.Require("ROLE_VIEW",),cfg.RoleHandler.GetRoleByID,)
+	roles.Post("/", cfg.PermissionMiddleware.Require("ROLE_CREATE",), cfg.RoleHandler.CreateRole,)
+	roles.Put("/:id", cfg.PermissionMiddleware.Require("ROLE_UPDATE",), cfg.RoleHandler.UpdateRole,)
+	roles.Delete("/:id", cfg.PermissionMiddleware.Require("ROLE_DELETE",), cfg.RoleHandler.DeleteRole,)
 }
 
 func registerPermissionRoutes(api fiber.Router,cfg RouteConfig,) {
 	permissions := api.Group("/permissions",cfg.AuthMiddleware.RequireAuth(),)
-	permissions.Get(
-		"/",
-		cfg.PermissionMiddleware.Require(
-			"PERMISSION_VIEW",
-		),
-		cfg.PermissionHandler.GetAllPermissions,
-	)
-	permissions.Get(
-		"/:id",
-		cfg.PermissionMiddleware.Require(
-			"PERMISSION_VIEW",
-		),
-		cfg.PermissionHandler.GetPermissionByID,
-	)
-	permissions.Get(
-		"/feature/:featureCode",
-		cfg.PermissionMiddleware.Require(
-			"PERMISSION_VIEW",
-		),
-		cfg.PermissionHandler.GetPermissionByFeatureCode,
-	)
-	permissions.Get(
-		"/role/:roleId",
-		cfg.PermissionMiddleware.Require(
-			"PERMISSION_VIEW",
-		),
-		cfg.PermissionHandler.GetPermissionsByRole,
-	)
-	permissions.Get(
-		"/role/:roleId/scope",
-		cfg.PermissionMiddleware.Require(
-			"PERMISSION_VIEW",
-		),
-		cfg.PermissionHandler.GetPermissionsByRoleWithScope,
-	)
+	permissions.Get("/", cfg.PermissionMiddleware.Require("PERMISSION_VIEW",), cfg.PermissionHandler.GetAllPermissions,)
+	permissions.Get("/:id", cfg.PermissionMiddleware.Require("PERMISSION_VIEW",), cfg.PermissionHandler.GetPermissionByID,)
+	permissions.Get("/feature/:featureCode", cfg.PermissionMiddleware.Require("PERMISSION_VIEW",),cfg.PermissionHandler.GetPermissionByFeatureCode,)
+	permissions.Get("/role/:roleId", cfg.PermissionMiddleware.Require("PERMISSION_VIEW",), cfg.PermissionHandler.GetPermissionsByRole,)
+	permissions.Get("/role/:roleId/scope", cfg.PermissionMiddleware.Require("PERMISSION_VIEW",),cfg.PermissionHandler.GetPermissionsByRoleWithScope,)
 }
 
 func registerRolePermissionRoutes(api fiber.Router, cfg RouteConfig,) {
 	rp := api.Group("/role-permissions", cfg.AuthMiddleware.RequireAuth(),)
-	rp.Get(
-		"/role/:roleId",
-		cfg.PermissionMiddleware.Require(
-			"ROLE_PERMISSION_VIEW",
-		),
-		cfg.RolePermissionHandler.GetByRoleID,
-	)
-	rp.Post(
-		"/assign",
-		cfg.PermissionMiddleware.Require(
-			"ROLE_PERMISSION_ASSIGN",
-		),
-		cfg.RolePermissionHandler.AssignPermission,
-	)
-	rp.Post(
-		"/revoke",
-		cfg.PermissionMiddleware.Require(
-			"ROLE_PERMISSION_REVOKE",
-		),
-		cfg.RolePermissionHandler.RevokePermission,
-	)
+	rp.Get("/role/:roleId", cfg.PermissionMiddleware.Require("ROLE_PERMISSION_VIEW",), cfg.RolePermissionHandler.GetByRoleID,)
+	rp.Post("/assign", cfg.PermissionMiddleware.Require("ROLE_PERMISSION_ASSIGN",), cfg.RolePermissionHandler.AssignPermission,)
+	rp.Post("/revoke", cfg.PermissionMiddleware.Require("ROLE_PERMISSION_REVOKE",), cfg.RolePermissionHandler.RevokePermission,)
 }
 
 func registerUserOverrideRoutes(api fiber.Router, cfg RouteConfig,) {
 	override := api.Group("/user-permission-overrides",cfg.AuthMiddleware.RequireAuth(),)
-	override.Get(
-		"/user/:userId",
-		cfg.PermissionMiddleware.Require(
-			"USER_OVERRIDE_VIEW",
-		),
-		cfg.UserOverrideHandler.GetByUserID,
-	)
-	override.Post(
-		"/grant",
-		cfg.PermissionMiddleware.Require(
-			"USER_OVERRIDE_GRANT",
-		),
-		cfg.UserOverrideHandler.GrantOverride,
-	)
-	override.Post(
-		"/revoke",
-		cfg.PermissionMiddleware.Require(
-			"USER_OVERRIDE_REVOKE",
-		),
-		cfg.UserOverrideHandler.RevokeOverride,
-	)
+	override.Get("/user/:userId", cfg.PermissionMiddleware.Require("USER_OVERRIDE_VIEW",), cfg.UserOverrideHandler.GetByUserID,)
+	override.Post("/grant", cfg.PermissionMiddleware.Require("USER_OVERRIDE_GRANT",), cfg.UserOverrideHandler.GrantOverride,)
+	override.Post("/revoke", cfg.PermissionMiddleware.Require("USER_OVERRIDE_REVOKE",), cfg.UserOverrideHandler.RevokeOverride,)
 }
 
 func registerAuditRoutes(api fiber.Router, cfg RouteConfig,) {
 	audit := api.Group("/audit-logs",cfg.AuthMiddleware.RequireAuth(),)
-	audit.Get(
-		"/",
-		cfg.PermissionMiddleware.Require(
-			"AUDIT_VIEW",
-		),
-		cfg.AuditHandler.List,
-	)
-	audit.Get(
-		"/:id",
-		cfg.PermissionMiddleware.Require(
-			"AUDIT_VIEW",
-		),
-		cfg.AuditHandler.GetByID,
-	)
-	audit.Post(
-		"/",
-		cfg.PermissionMiddleware.Require(
-			"AUDIT_CREATE",
-		),
-		cfg.AuditHandler.Create,
-	)
+	audit.Get("/", cfg.PermissionMiddleware.Require("AUDIT_VIEW",), cfg.AuditHandler.List,)
+	audit.Get("/:id", cfg.PermissionMiddleware.Require("AUDIT_VIEW",), cfg.AuditHandler.GetByID,)
+	audit.Post("/", cfg.PermissionMiddleware.Require("AUDIT_CREATE",), cfg.AuditHandler.Create,)
 }

@@ -28,10 +28,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		)
 	}
 
-	claims := middleware.GetClaims(
-		c.Locals("claims"),
-	)
-
+	claims := middleware.GetClaims(c.Locals("claims"),)
 	if claims == nil {
 		return utils.Unauthorized(
 			c,
@@ -39,10 +36,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		)
 	}
 
-	err := h.userService.CreateUser(
-		req,
-		claims.UserID,
-	)
+	err := h.userService.CreateUser(req, claims.UserID,)
 	if err != nil {
 		return utils.BadRequest(
 			c,
@@ -88,12 +82,7 @@ func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 			err.Error(),
 		)
 	}
-
-	response := dto.UserListResponse{
-		Items: users,
-		Total: len(users),
-	}
-
+	response := dto.UserListResponse{Items: users, Total: len(users),}
 	return utils.Success(
 		c,
 		response,
@@ -102,7 +91,6 @@ func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	id := c.Params("id")
-
 	if id == "" {
 		return utils.BadRequest(
 			c,
@@ -111,25 +99,19 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	var req dto.UpdateUserRequest
-
 	if err := c.BodyParser(&req); err != nil {
 		return utils.BadRequest(
 			c,
 			"invalid request body",
 		)
 	}
-
-	err := h.userService.UpdateUser(
-		id,
-		req,
-	)
+	err := h.userService.UpdateUser(id, req,)
 	if err != nil {
 		return utils.BadRequest(
 			c,
 			err.Error(),
 		)
 	}
-
 	return utils.Success(
 		c,
 		"user updated successfully",
@@ -138,14 +120,12 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")
-
 	if id == "" {
 		return utils.BadRequest(
 			c,
 			"id is required",
 		)
 	}
-
 	err := h.userService.DeleteUser(id)
 	if err != nil {
 		return utils.BadRequest(
@@ -153,7 +133,6 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 			err.Error(),
 		)
 	}
-
 	return utils.Success(
 		c,
 		"user deleted successfully",
