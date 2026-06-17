@@ -1,0 +1,91 @@
+package middleware
+
+import (
+	"strings"
+
+	"go-rbac-system/internal/config"
+	"go-rbac-system/internal/constants"
+	"go-rbac-system/pkg/response"
+	"go-rbac-system/pkg/utils"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+type AuthMiddleware interface {
+	RequireAuth() fiber.Handler
+}
+
+type authMiddleware struct {
+	cfg *config.Config
+}
+
+func NewAuthMiddleware(
+	cfg *config.Config,
+) AuthMiddleware {
+	return &authMiddleware{
+		cfg: cfg,
+	}
+}
+
+func (m *authMiddleware) RequireAuth() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		authHeader := c.Get("Authorization")
+		if authHeader == "" {
+			return response.Error(
+				c,
+				fiber.StatusUnauthorized,
+				"authorization header is required",
+			)
+		}
+
+		parts := strings.SplitN(
+			authHeader,
+			" ",
+			2,
+		)
+
+		if len(parts) != 2 {
+			return response.Error(
+				c,
+				fiber.StatusUnauthorized,
+				"invalid authorization format",
+			)
+		}
+
+		if !strings.EqualFold(parts[0], "Bearer") {
+			return response.Error(
+				c,
+				fiber.StatusUnauthorized,
+				"invalid authorization format",
+			)
+		}
+
+		tokenString := strings.TrimSpace(parts[1])
+		if tokenString == "" {
+			return response.Error(
+				c,
+				fiber.StatusUnauthorized,
+				"token is required",
+			)
+		}
+
+		claims, err := utils.ParseToken(
+			tokenString,
+			m.cfg.JWT.Secret,
+		)
+		if err != nil {
+			return response.Error(
+				c,
+				fiber.StatusUnauthorized,
+				"invalid or expired token",
+			)
+		}
+
+		c.Locals(
+			constants.ContextClaims,
+			claims,
+		)
+
+		return c.Next()
+	}
+}
