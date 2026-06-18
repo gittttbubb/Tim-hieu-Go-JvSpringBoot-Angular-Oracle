@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"database/sql"
+	"errors"
+
 	"github.com/gofiber/fiber/v2"
 
 	"go-rbac-system/internal/constants"
@@ -30,41 +33,37 @@ func (h *UserHandler) List(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, fiber.StatusInternalServerError, err.Error())
 	}
-
 	return response.Success(c, users)
 }
 
 func (h *UserHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
-
 	user, err := h.userService.GetByID(id)
 	if err != nil {
 		return response.Error(c, fiber.StatusNotFound, err.Error())
 	}
-
 	return response.Success(c, user)
 }
 
 func (h *UserHandler) Create(c *fiber.Ctx) error {
 	var req dto.CreateUserRequest
-
 	if err := c.BodyParser(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	if err := validator.Validate.Struct(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	createdBy := c.Locals(constants.ContextUserID).(string)
-
-	err := h.userService.Create(&req, createdBy)
+	tempPassword, err := h.userService.Create(
+		&req,
+		createdBy,
+	)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	return response.Success(c, fiber.Map{
-		"message": "user created successfully",
+		"message":           "user created successfully",
+		"temporaryPassword": tempPassword,
 	})
 }
 
@@ -106,27 +105,21 @@ func (h *UserHandler) Delete(c *fiber.Ctx) error {
 
 func (h *UserHandler) Lock(c *fiber.Ctx) error {
 	id := c.Params("id")
-
-	req := dto.UpdateUserRequest{}
-
-	user, err := h.userService.GetByID(id)
+	err := h.userService.LockUser(id)
 	if err != nil {
-		return response.Error(c, fiber.StatusNotFound, err.Error())
+		if errors.Is(err, sql.ErrNoRows) {
+			return response.Error(
+				c,
+				fiber.StatusNotFound,
+				"user not found",
+			)
+		}
+		return response.Error(
+			c,
+			fiber.StatusBadRequest,
+			err.Error(),
+		)
 	}
-
-	req = dto.UpdateUserRequest{
-		FullName: user.FullName,
-		Email:    user.Email,
-		Phone:    user.Phone,
-		RoleID:   user.RoleID,
-		Status:   constants.UserStatusLocked,
-	}
-
-	err = h.userService.Update(id, &req)
-	if err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
-	}
-
 	return response.Success(c, fiber.Map{
 		"message": "user locked",
 	})
@@ -134,25 +127,21 @@ func (h *UserHandler) Lock(c *fiber.Ctx) error {
 
 func (h *UserHandler) Unlock(c *fiber.Ctx) error {
 	id := c.Params("id")
-
-	user, err := h.userService.GetByID(id)
+	err := h.userService.UnlockUser(id)
 	if err != nil {
-		return response.Error(c, fiber.StatusNotFound, err.Error())
+		if errors.Is(err, sql.ErrNoRows) {
+			return response.Error(
+				c,
+				fiber.StatusNotFound,
+				"user not found",
+			)
+		}
+		return response.Error(
+			c,
+			fiber.StatusBadRequest,
+			err.Error(),
+		)
 	}
-
-	req := dto.UpdateUserRequest{
-		FullName: user.FullName,
-		Email:    user.Email,
-		Phone:    user.Phone,
-		RoleID:   user.RoleID,
-		Status:   constants.UserStatusActive,
-	}
-
-	err = h.userService.Update(id, &req)
-	if err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
-	}
-
 	return response.Success(c, fiber.Map{
 		"message": "user unlocked",
 	})

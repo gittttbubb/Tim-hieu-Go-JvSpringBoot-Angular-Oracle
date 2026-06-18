@@ -2,7 +2,7 @@ package config
 
 type Config struct {
 	App      AppConfig      `mapstructure:"app"`
-	Database DatabaseConfig `mapstructure:"database"`
+	Database DatabaseConfig `mapstructure:"databse-oracle"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
 }
 
@@ -22,6 +22,6 @@ type DatabaseConfig struct {
 
 type JWTConfig struct {
 	Secret              string `mapstructure:"secret"`
-	AccessExpiryMinutes int    `mapstructure:"access_expiry_minutes"`
+	AccessExpiryMinutes int    `mapstructure:"access_expiry_second"`
 	RefreshExpiryHours  int    `mapstructure:"refresh_expiry_hours"`
 }

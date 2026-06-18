@@ -7,7 +7,7 @@ type CreateUserRequest struct {
 	Email    string `json:"email" validate:"required,email,max=200"`
 	Phone    string `json:"phone" validate:"required,max=20"`
 	RoleID   string `json:"roleId" validate:"required,uuid"`
-	Password string `json:"password" validate:"required,min=8,max=100"`
+	// Password string `json:"password" validate:"required,min=8,max=100"`
 }
 
 type UpdateUserRequest struct {

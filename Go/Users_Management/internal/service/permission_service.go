@@ -8,10 +8,7 @@ import (
 
 type PermissionService interface {
 	GetByID(id string) (*dto.PermissionResponse, error)
-	GetByFeatureCode(
-		featureCode string,
-	) (*dto.PermissionResponse, error)
-
+	GetByFeatureCode(featureCode string,) (*dto.PermissionResponse, error)
 	List() ([]dto.PermissionResponse, error)
 }
 
@@ -71,10 +68,7 @@ func (s *permissionService) GetByFeatureCode(
 	return mapPermissionResponse(permission), nil
 }
 
-func (s *permissionService) List() (
-	[]dto.PermissionResponse,
-	error,
-) {
+func (s *permissionService) List() ([]dto.PermissionResponse, error,) {
 
 	permissions, err := s.permissionRepo.List()
 	if err != nil {

@@ -12,18 +12,9 @@ import (
 
 type RoleService interface {
 	GetByID(id string) (*dto.RoleResponse, error)
-
 	List() ([]dto.RoleResponse, error)
-
-	Create(
-		req *dto.CreateRoleRequest,
-	) error
-
-	Update(
-		id string,
-		req *dto.UpdateRoleRequest,
-	) error
-
+	Create(req *dto.CreateRoleRequest,) error
+	Update(id string, req *dto.UpdateRoleRequest,) error
 	Delete(id string) error
 }
 

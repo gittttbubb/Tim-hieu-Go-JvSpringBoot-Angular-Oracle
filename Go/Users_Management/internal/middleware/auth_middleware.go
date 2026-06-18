@@ -81,10 +81,9 @@ func (m *authMiddleware) RequireAuth() fiber.Handler {
 			)
 		}
 
-		c.Locals(
-			constants.ContextClaims,
-			claims,
-		)
+		c.Locals(constants.ContextClaims, claims)
+		c.Locals(constants.ContextUserID, claims.UserID)
+		c.Locals(constants.ContextRoleIDs, claims.RoleID)
 
 		return c.Next()
 	}

@@ -15,9 +15,11 @@ import (
 type UserService interface {
 	GetByID(id string,) (*dto.UserDetailResponse, error)
 	List() ([]dto.UserListResponse, error)
-	Create(req *dto.CreateUserRequest, createdBy string,) error
+	Create(req *dto.CreateUserRequest, createdBy string,) (string, error)
 	Update(id string, req *dto.UpdateUserRequest,) error
 	Delete(id string,) error
+	LockUser(id string) error
+	UnlockUser(id string) error
 }
 
 type userService struct {
@@ -112,53 +114,64 @@ func (s *userService) List() ([]dto.UserListResponse, error) {
 func (s *userService) Create(
 	req *dto.CreateUserRequest,
 	createdBy string,
-) error {
+) (string, error) {
 
 	_, err := s.userRepo.GetByUsername(req.Username)
 	if err == nil {
-		return errors.New("username already exists")
+		return "", errors.New("username already exists")
 	}
 
 	if !errors.Is(err, sql.ErrNoRows) {
-		return err
+		return "", err
 	}
 
 	_, err = s.userRepo.GetByEmail(req.Email)
 	if err == nil {
-		return errors.New("email already exists")
+		return "", errors.New("email already exists")
 	}
+
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return err
+		return "", err
 	}
+
 	_, err = s.roleRepo.GetByID(req.RoleID)
 	if err != nil {
-		return err
+		return "", err
 	}
-	passwordHash, err := utils.HashPassword(req.Password)
+
+	tempPassword := utils.GenerateTempPassword()
+
+	passwordHash, err := utils.HashPassword(tempPassword)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	now := time.Now()
 	createdByValue := createdBy
+
 	user := &model.User{
-		ID:           utils.NewUUID(),
-		TenantID:     req.TenantID,
-		FullName:     req.FullName,
-		Username:     req.Username,
-		Email:        req.Email,
-		Phone:        req.Phone,
-		PasswordHash: passwordHash,
-		RoleID:       req.RoleID,
-		Status:             constants.UserStatusActive,
+		ID:                 utils.NewUUID(),
+		TenantID:           req.TenantID,
+		FullName:           req.FullName,
+		Username:           req.Username,
+		Email:              req.Email,
+		Phone:              req.Phone,
+		PasswordHash:       passwordHash,
+		RoleID:             req.RoleID,
+		Status:             constants.UserStatusPendingPasswordChange,
 		MustChangePassword: true,
-		CreatedAt: now,
-		UpdatedAt: now,
-		CreatedBy: &createdByValue,
-		PasswordChangedAt: now,
+		CreatedAt:          now,
+		UpdatedAt:          now,
+		CreatedBy:          &createdByValue,
+		PasswordChangedAt:  now,
 	}
 
-	return s.userRepo.Create(user)
+	err = s.userRepo.Create(user)
+	if err != nil {
+		return "", err
+	}
+
+	return tempPassword, nil
 }
 
 func (s *userService) Update(
@@ -205,4 +218,31 @@ func (s *userService) Delete(
 	}
 
 	return s.userRepo.Delete(id)
+}
+
+func (s *userService) LockUser(id string) error {
+
+	return s.userRepo.UpdateStatus(
+		id,
+		constants.UserStatusLocked,
+	)
+}
+
+func (s *userService) UnlockUser(id string) error {
+
+	user, err := s.userRepo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	status := constants.UserStatusActive
+
+	if user.MustChangePassword {
+		status = constants.UserStatusPendingPasswordChange
+	}
+
+	return s.userRepo.UpdateStatus(
+		id,
+		status,
+	)
 }

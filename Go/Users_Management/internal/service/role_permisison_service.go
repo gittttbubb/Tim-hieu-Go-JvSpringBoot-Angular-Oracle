@@ -9,18 +9,9 @@ import (
 )
 
 type RolePermissionService interface {
-	GetByRoleID(
-		roleID string,
-	) ([]dto.RolePermissionResponse, error)
-
-	Assign(
-		req *dto.AssignRolePermissionRequest,
-	) error
-
-	Remove(
-		roleID string,
-		permissionID string,
-	) error
+	GetByRoleID(roleID string,) ([]dto.RolePermissionResponse, error)
+	Assign(req *dto.AssignRolePermissionRequest,) error
+	Remove(roleID string, permissionID string,) error
 }
 
 type rolePermissionService struct {

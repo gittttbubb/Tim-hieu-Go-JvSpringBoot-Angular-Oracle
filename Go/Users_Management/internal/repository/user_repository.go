@@ -16,6 +16,7 @@ type UserRepository interface {
 	Update(user *model.User) error
 	UpdatePassword(userID string, passwordHash string, changedAt time.Time, mustChangePassword bool,) error
 	Delete(id string) error
+	UpdateStatus(id string, status string) error
 }
 
 type userRepository struct {
@@ -58,22 +59,22 @@ const userSelectQuery = ` SELECT id, tenant_id, full_name, username, email, phon
 	must_change_password, created_at, updated_at, created_by, password_changed_at FROM users`
 
 func (r *userRepository) GetByID(id string,) (*model.User, error) {
-	row := r.db.QueryRow(userSelectQuery + `WHERE id = :1`,id,)
+	row := r.db.QueryRow(userSelectQuery +  ` WHERE id = :1`,id,)
 	return scanUser(row)
 }
 
 func (r *userRepository) GetByUsername(username string,) (*model.User, error) {
-	row := r.db.QueryRow(userSelectQuery + `WHERE username = :1`,username,)
+	row := r.db.QueryRow(userSelectQuery +  ` WHERE username = :1`,username,)
 	return scanUser(row)
 }
 
 func (r *userRepository) GetByEmail(email string,) (*model.User, error) {
-	row := r.db.QueryRow(userSelectQuery + `WHERE email = :1`, email,)
+	row := r.db.QueryRow(userSelectQuery +  ` WHERE email = :1`, email,)
 	return scanUser(row)
 }
 
 func (r *userRepository) List() ([]model.User, error) {
-	query := userSelectQuery + `ORDER BY created_at DESC`
+	query := userSelectQuery +  ` ORDER BY created_at DESC`
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -160,4 +161,20 @@ func (r *userRepository) UpdatePassword(userID string, passwordHash string, chan
 		userID,
 	)
 	return err
+}
+
+func (r *userRepository) UpdateStatus(id string, status string,) error {
+	query := `UPDATE users SET status = :1, updated_at = :2 WHERE id = :3`
+	result, err := r.db.Exec(query, status, time.Now(), id,)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
 }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+
 	"github.com/gofiber/fiber/v2"
 
 	"go-rbac-system/internal/dto"
@@ -112,12 +113,12 @@ func (h *RoleHandler) GetPermissions(c *fiber.Ctx) error {
 }
 
 func (h *RoleHandler) AssignPermission(c *fiber.Ctx) error {
+	
 	var req dto.AssignRolePermissionRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	if err := validator.Validate.Struct(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}

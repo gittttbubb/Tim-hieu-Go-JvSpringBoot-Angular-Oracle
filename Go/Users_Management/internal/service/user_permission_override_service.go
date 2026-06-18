@@ -70,7 +70,6 @@ func (s *userPermissionOverrideService) GetByID(
 func (s *userPermissionOverrideService) GetByUserID(
 	userID string,
 ) ([]dto.UserPermissionOverrideResponse, error) {
-
 	_, err := s.userRepo.GetByID(userID)
 	if err != nil {
 		return nil, err
