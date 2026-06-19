@@ -106,19 +106,17 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 	})
 }
 
-func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
-	var req dto.ResetPasswordRequest
+func (h *AuthHandler) AdminResetPassword(c *fiber.Ctx) error {
+    userID := c.Params("id")
+    adminID := c.Locals(constants.ContextUserID).(string)
 
-	if err := c.BodyParser(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, "invalid request body")
-	}
+    tempPassword, err := h.passwordResetService.AdminResetPassword(userID, adminID)
+    if err != nil {
+        return response.Error(c, fiber.StatusBadRequest, err.Error())
+    }
 
-	err := h.passwordResetService.ResetPassword(&req)
-	if err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
-	}
-
-	return response.Success(c, fiber.Map{
-		"message": "password reset successfully",
-	})
+    return response.Success(c, fiber.Map{
+        "message": "password reset successfully",
+        "temporaryPassword": tempPassword,
+    })
 }

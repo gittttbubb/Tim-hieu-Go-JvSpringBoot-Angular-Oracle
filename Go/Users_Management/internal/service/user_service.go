@@ -20,6 +20,7 @@ type UserService interface {
 	Delete(id string,) error
 	LockUser(id string) error
 	UnlockUser(id string) error
+	UpdateRole(userID string, roleID string,) error
 }
 
 type userService struct {
@@ -244,5 +245,33 @@ func (s *userService) UnlockUser(id string) error {
 	return s.userRepo.UpdateStatus(
 		id,
 		status,
+	)
+}
+
+func (s *userService) UpdateRole(
+	userID string,
+	roleID string,
+) error {
+
+	// kiểm tra user tồn tại
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	// kiểm tra role tồn tại
+	_, err = s.roleRepo.GetByID(roleID)
+	if err != nil {
+		return err
+	}
+
+	// tránh update vô nghĩa
+	if user.RoleID == roleID {
+		return errors.New("user already has this role")
+	}
+
+	return s.userRepo.UpdateRole(
+		userID,
+		roleID,
 	)
 }

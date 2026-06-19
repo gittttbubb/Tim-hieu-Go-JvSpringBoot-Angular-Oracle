@@ -17,6 +17,8 @@ type UserRepository interface {
 	UpdatePassword(userID string, passwordHash string, changedAt time.Time, mustChangePassword bool,) error
 	Delete(id string) error
 	UpdateStatus(id string, status string) error
+	UpdateMustChangePassword(userID string, value bool) error
+	UpdateRole(userID string, roleID string,) error
 }
 
 type userRepository struct {
@@ -177,4 +179,41 @@ func (r *userRepository) UpdateStatus(id string, status string,) error {
 		return sql.ErrNoRows
 	}
 	return nil
+}
+
+func (r *userRepository) UpdateMustChangePassword(userID string, value bool) error {
+	query := `UPDATE users SET must_change_password = :1, updated_at = :2 WHERE id = :3`
+	mustChange := 0
+	if value {
+		mustChange = 1
+	}
+	_, err := r.db.Exec(
+		query,
+		mustChange,
+		time.Now(),
+		userID,
+	)
+	return err
+}
+
+func (r *userRepository) UpdateRole(
+    userID string,
+    roleID string,
+) error {
+
+    query := `
+        UPDATE users
+        SET role_id = :1,
+            updated_at = :2
+        WHERE id = :3
+    `
+
+    _, err := r.db.Exec(
+        query,
+        roleID,
+        time.Now(),
+        userID,
+    )
+
+    return err
 }

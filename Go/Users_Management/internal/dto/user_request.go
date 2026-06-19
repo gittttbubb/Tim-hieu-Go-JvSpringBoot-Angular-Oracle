@@ -43,3 +43,7 @@ type UserDetailResponse struct {
 	CreatedAt          string `json:"createdAt"`
 	UpdatedAt          string `json:"updatedAt"`
 }
+
+type UpdateUserRoleRequest struct {
+    RoleID string `json:"roleId" validate:"required,uuid"`
+}

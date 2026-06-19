@@ -197,3 +197,30 @@ func (h *UserHandler) RemoveOverride(c *fiber.Ctx) error {
         "message": "permission override removed",
     })
 }
+
+func (h *UserHandler) UpdateRole(c *fiber.Ctx) error {
+    userID := c.Params("id")
+
+    var req dto.UpdateUserRoleRequest
+
+    if err := c.BodyParser(&req); err != nil {
+        return response.Error(c, fiber.StatusBadRequest, err.Error())
+    }
+
+    if err := validator.Validate.Struct(&req); err != nil {
+        return response.Error(c, fiber.StatusBadRequest, err.Error())
+    }
+
+    err := h.userService.UpdateRole(
+        userID,
+        req.RoleID,
+    )
+
+    if err != nil {
+        return response.Error(c, fiber.StatusBadRequest, err.Error())
+    }
+
+    return response.Success(c, fiber.Map{
+        "message": "user role updated successfully",
+    })
+}

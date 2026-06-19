@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"go-rbac-system/internal/constants"
 	"go-rbac-system/internal/dto"
 	"go-rbac-system/internal/model"
 	"go-rbac-system/internal/repository"
@@ -14,7 +15,7 @@ import (
 
 type PasswordResetService interface {
 	ForgotPassword(req *dto.ForgotPasswordRequest, ipAddress *string, userAgent *string,) (string, error)
-	ResetPassword(req *dto.ResetPasswordRequest,) error
+	AdminResetPassword(userID string, adminID string) (string, error)
 	ChangePassword(userID string, req *dto.ChangePasswordRequest,) error
 }
 
@@ -47,129 +48,103 @@ func hashToken(
 }
 
 func (s *passwordResetService) ForgotPassword(
-	req *dto.ForgotPasswordRequest,
-	ipAddress *string,
-	userAgent *string,
+    req *dto.ForgotPasswordRequest,
+    ipAddress *string,
+    userAgent *string,
 ) (string, error) {
 
-	user, err := s.userRepo.GetByUsername(
-		req.Username,
-	)
-	if err != nil {
-		return "", err
-	}
+    user, err := s.userRepo.GetByUsername(req.Username)
+    if err != nil {
+        return "", nil // tránh user enumeration
+    }
+    rawToken := utils.NewUUID()
+    now := time.Now()
+    token := &model.PasswordResetToken{
+        ID:        utils.NewUUID(),
+        UserID:    user.ID,
+        TokenHash: hashToken(rawToken),
+        ExpiresAt: now.Add(1 * time.Hour),
+        CreatedIP: ipAddress,
+        UserAgent: userAgent,
+        CreatedAt: now,
+    }
+    err = s.passwordResetRepo.Create(token)
+    if err != nil {
+        return "", err
+    }
 
-	rawToken := utils.NewUUID()
-
-	now := time.Now()
-
-	token := &model.PasswordResetToken{
-		ID:         utils.NewUUID(),
-		UserID:     user.ID,
-		TokenHash:  hashToken(rawToken),
-		ExpiresAt:  now.Add(1 * time.Hour),
-		CreatedIP:  ipAddress,
-		UserAgent:  userAgent,
-		CreatedAt:  now,
-	}
-
-	err = s.passwordResetRepo.Create(token)
-	if err != nil {
-		return "", err
-	}
-
-	return rawToken, nil
+    // production: gửi email, KHÔNG return token
+    return "", nil
 }
 
-func (s *passwordResetService) ResetPassword(
-	req *dto.ResetPasswordRequest,
-) error {
+func (s *passwordResetService) AdminResetPassword(userID string, adminID string) (string, error) {
 
-	tokenHash := hashToken(
-		req.Token,
-	)
+    user, err := s.userRepo.GetByID(userID)
+    if err != nil {
+        return "", err
+    }
 
-	token, err := s.passwordResetRepo.GetByTokenHash(
-		tokenHash,
-	)
-	if err != nil {
-		return err
-	}
+    tempPassword := utils.GenerateTempPassword()
 
-	if token.UsedAt != nil {
-		return errors.New("reset token already used")
-	}
+    passwordHash, err := utils.HashPassword(tempPassword)
+    if err != nil {
+        return "", err
+    }
 
-	if token.RevokedAt != nil {
-		return errors.New("reset token revoked")
-	}
+    now := time.Now()
 
-	if time.Now().After(token.ExpiresAt) {
-		return errors.New("reset token expired")
-	}
+    err = s.userRepo.UpdatePassword(
+        user.ID,
+        passwordHash,
+        now,
+        false,
+    )
+    if err != nil {
+        return "", err
+    }
 
-	passwordHash, err := utils.HashPassword(
-		req.NewPassword,
-	)
-	if err != nil {
-		return err
-	}
+    // enforce first login change
+    err = s.userRepo.UpdateMustChangePassword(user.ID, true)
+    if err != nil {
+        return "", err
+    }
 
-	now := time.Now()
-
-	err = s.userRepo.UpdatePassword(
-		token.UserID,
-		passwordHash,
-		now,
-		false,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = s.passwordResetRepo.MarkUsed(
-		token.ID,
-		now,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
+    return tempPassword, nil
 }
 
-func (s *passwordResetService) ChangePassword(
-	userID string,
-	req *dto.ChangePasswordRequest,
-) error {
+func (s *passwordResetService) ChangePassword(userID string, req *dto.ChangePasswordRequest) error {
 
-	user, err := s.userRepo.GetByID(
-		userID,
-	)
+    user, err := s.userRepo.GetByID(userID)
+    if err != nil {
+        return err
+    }
+
+    // optional: enforce first login logic
+    if user.MustChangePassword == false {
+        // normal flow
+        if !utils.CheckPassword(user.PasswordHash, req.OldPassword) {
+            return errors.New("old password is incorrect")
+        }
+    }
+
+    passwordHash, err := utils.HashPassword(req.NewPassword)
+    if err != nil {
+        return err
+    }
+
+    now := time.Now()
+    err = s.userRepo.UpdatePassword(user.ID, passwordHash, now, false)
+    if err != nil {
+        return err
+    }
+	err = s.userRepo.UpdateStatus(user.ID, constants.UserStatusActive)
 	if err != nil {
 		return err
 	}
+    // clear flag after first login
+    if user.MustChangePassword {
+        _ = s.userRepo.UpdateMustChangePassword(user.ID, false)
+    }
 
-	if !utils.CheckPassword(
-		user.PasswordHash,
-		req.OldPassword,
-	) {
-		return errors.New("old password is incorrect")
-	}
-
-	passwordHash, err := utils.HashPassword(
-		req.NewPassword,
-	)
-	if err != nil {
-		return err
-	}
-
-	now := time.Now()
-
-	return s.userRepo.UpdatePassword(
-		user.ID,
-		passwordHash,
-		now,
-		false,
-	)
+    return nil
 }

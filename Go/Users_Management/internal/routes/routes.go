@@ -32,7 +32,7 @@ func AuthRoutes(api fiber.Router, cfg RouteConfig) {
 	auth := api.Group("/auth")
 	auth.Post("/login", cfg.AuthHandler.Login)
 	auth.Post("/forgot-password", cfg.AuthHandler.ForgotPassword)
-	auth.Post("/reset-password", cfg.AuthHandler.ResetPassword)
+	auth.Post("/reset-password/:id", cfg.AuthMiddleware.RequireAuth(), cfg.PermissionMiddleware.Require("USER_UPDATE"), cfg.AuthHandler.AdminResetPassword)
 	auth.Post("/change-password", cfg.AuthMiddleware.RequireAuth(), cfg.AuthHandler.ChangePassword,)
 }
 
@@ -51,6 +51,8 @@ func UserRoutes(api fiber.Router, cfg RouteConfig) {
 	users.Get("/overrides/:id", cfg.PermissionMiddleware.Require("USER_PERMISSION_VIEW"), cfg.UserHandler.GetOverrides,)
 	users.Post("/overrides/assign", cfg.PermissionMiddleware.Require("USER_PERMISSION_ASSIGN"), cfg.UserHandler.AssignOverride,)
 	users.Delete("/overrides/:id", cfg.PermissionMiddleware.Require("USER_PERMISSION_REMOVE"), cfg.UserHandler.RemoveOverride,)
+	// Change role user
+	users.Put("/change-role/:id", cfg.PermissionMiddleware.Require("USER_UPDATE"), cfg.UserHandler.UpdateRole,)
 }
 
 // ROLE
