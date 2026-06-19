@@ -124,13 +124,15 @@ func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (str
 	if !errors.Is(err, sql.ErrNoRows) {
 		return "", err
 	}
+	
 	_, err = s.userRepo.GetByEmail(req.Email)
 	if err == nil {
 		return "", errors.New("email already exists")
 	}
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if !errors.Is(err, sql.ErrNoRows) {
 		return "", err
 	}
+
 	_, err = s.roleRepo.GetByID(req.RoleID)
 	if err != nil {
 		return "", err
