@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"go-rbac-system/internal/constants"
@@ -26,15 +27,18 @@ type UserService interface {
 type userService struct {
 	userRepo repository.UserRepository
 	roleRepo repository.RoleRepository
+	auditRepo repository.AuditRepository
 }
 
 func NewUserService(
 	userRepo repository.UserRepository,
 	roleRepo repository.RoleRepository,
+	auditRepo repository.AuditRepository,
 ) UserService {
 	return &userService{
 		userRepo: userRepo,
 		roleRepo: roleRepo,
+		auditRepo: auditRepo,
 	}
 }
 
@@ -112,44 +116,32 @@ func (s *userService) List() ([]dto.UserListResponse, error) {
 	return result, nil
 }
 
-func (s *userService) Create(
-	req *dto.CreateUserRequest,
-	createdBy string,
-) (string, error) {
-
+func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (string, error) {
 	_, err := s.userRepo.GetByUsername(req.Username)
 	if err == nil {
 		return "", errors.New("username already exists")
 	}
-
 	if !errors.Is(err, sql.ErrNoRows) {
 		return "", err
 	}
-
 	_, err = s.userRepo.GetByEmail(req.Email)
 	if err == nil {
 		return "", errors.New("email already exists")
 	}
-
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return "", err
 	}
-
 	_, err = s.roleRepo.GetByID(req.RoleID)
 	if err != nil {
 		return "", err
 	}
-
 	tempPassword := utils.GenerateTempPassword()
-
 	passwordHash, err := utils.HashPassword(tempPassword)
 	if err != nil {
 		return "", err
 	}
-
 	now := time.Now()
 	createdByValue := createdBy
-
 	user := &model.User{
 		ID:                 utils.NewUUID(),
 		TenantID:           req.TenantID,
@@ -166,38 +158,53 @@ func (s *userService) Create(
 		CreatedBy:          &createdByValue,
 		PasswordChangedAt:  now,
 	}
-
 	err = s.userRepo.Create(user)
 	if err != nil {
 		return "", err
 	}
+	audit := &model.AuditLog{
+		ID:             utils.NewUUID(),
+		TenantID:       user.TenantID,
+		Action:         "USER_CREATE",
+		EntityType:     "USER",
+		EntityID:       user.ID,
+		TargetUserID:   &user.ID,
+		ActorID:        user.CreatedBy,
+		EventTimestamp: time.Now(),
+		AfterData: utils.StringPtr(
+			fmt.Sprintf(
+				`{"username":"%s","email":"%s","roleId":"%s","status":"%s"}`,
+				user.Username,
+				user.Email,
+				user.RoleID,
+				user.Status,
+			),
+		),
+	}
+	_ = s.auditRepo.Create(audit)
 
 	return tempPassword, nil
 }
 
-func (s *userService) Update(
-	id string,
-	req *dto.UpdateUserRequest,
-) error {
-
+func (s *userService) Update(id string, req *dto.UpdateUserRequest,) error {
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return err
 	}
-
 	existingEmail, err := s.userRepo.GetByEmail(req.Email)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
-
 	if err == nil && existingEmail.ID != id {
 		return errors.New("email already exists")
 	}
-
 	_, err = s.roleRepo.GetByID(req.RoleID)
 	if err != nil {
 		return err
 	}
+	before := fmt.Sprintf(
+		`{"fullName":"%s","email":"%s","roleId":"%s","status":"%s"}`, user.FullName, user.Email, user.RoleID, user.Status,
+	)
 
 	user.FullName = req.FullName
 	user.Email = req.Email
@@ -206,72 +213,153 @@ func (s *userService) Update(
 	user.Status = req.Status
 	user.UpdatedAt = time.Now()
 
-	return s.userRepo.Update(user)
-}
-
-func (s *userService) Delete(
-	id string,
-) error {
-
-	_, err := s.userRepo.GetByID(id)
-	if err != nil {
-		return err
-	}
-
-	return s.userRepo.Delete(id)
-}
-
-func (s *userService) LockUser(id string) error {
-
-	return s.userRepo.UpdateStatus(
-		id,
-		constants.UserStatusLocked,
+	after := fmt.Sprintf(
+		`{"fullName":"%s","email":"%s","roleId":"%s","status":"%s"}`, req.FullName, req.Email, req.RoleID, req.Status,
 	)
+
+	 err = s.userRepo.Update(user)
+    if err != nil {
+        return err
+    }
+
+	audit := &model.AuditLog{
+		ID:             utils.NewUUID(),
+		TenantID:       user.TenantID,
+		TargetUserID:   &user.ID,
+		Action:         "USER_UPDATE",
+		EntityType:     "USER",
+		EntityID:       user.ID,
+		BeforeData:     &before,
+		AfterData:      &after,
+		EventTimestamp: time.Now(),
+	}
+	_ = s.auditRepo.Create(audit)
+
+	return nil
 }
 
-func (s *userService) UnlockUser(id string) error {
-
+func (s *userService) Delete(id string,) error {
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return err
 	}
-
-	status := constants.UserStatusActive
-
-	if user.MustChangePassword {
-		status = constants.UserStatusPendingPasswordChange
-	}
-
-	return s.userRepo.UpdateStatus(
-		id,
-		status,
+	before := fmt.Sprintf(
+		`{"username":"%s","email":"%s","roleId":"%s"}`, user.Username, user.Email, user.RoleID,
 	)
+	err = s.userRepo.Delete(id)
+    if err != nil {
+        return err
+    }
+	audit := &model.AuditLog{
+		ID:             utils.NewUUID(),
+		TenantID:       user.TenantID,
+		TargetUserID:   &user.ID,
+		Action:         "USER_DELETE",
+		EntityType:     "USER",
+		EntityID:       user.ID,
+		BeforeData:     &before,
+		EventTimestamp: time.Now(),
+	}
+	_ = s.auditRepo.Create(audit)
+
+	return nil
 }
 
-func (s *userService) UpdateRole(
-	userID string,
-	roleID string,
-) error {
+func (s *userService) LockUser(id string) error {
+	user, err := s.userRepo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	err = s.userRepo.UpdateStatus(
+        id,
+        constants.UserStatusLocked,
+    )
+    if err != nil {
+        return err
+    }
+	audit := &model.AuditLog{
+		ID:             utils.NewUUID(),
+		TenantID:       user.TenantID,
+		TargetUserID:   &user.ID,
+		Action:         "USER_LOCK",
+		EntityType:     "USER",
+		EntityID:       user.ID,
+		Reason:         utils.StringPtr("manual lock"),
+		EventTimestamp: time.Now(),
+	}
+	_ = s.auditRepo.Create(audit)
 
+	return nil
+}
+
+func (s *userService) UnlockUser(id string) error {
+    user, err := s.userRepo.GetByID(id)
+    if err != nil {
+        return err
+    }
+    status := constants.UserStatusActive
+    if user.MustChangePassword {
+        status = constants.UserStatusPendingPasswordChange
+    }
+    err = s.userRepo.UpdateStatus(
+        id,
+        status,
+    )
+    if err != nil {
+        return err
+    }
+
+    audit := &model.AuditLog{
+        ID:             utils.NewUUID(),
+        TenantID:       user.TenantID,
+        TargetUserID:   &user.ID,
+        Action:         "USER_UNLOCK",
+        EntityType:     "USER",
+        EntityID:       user.ID,
+        EventTimestamp: time.Now(),
+    }
+    _ = s.auditRepo.Create(audit)
+
+    return nil
+}
+
+func (s *userService) UpdateRole(userID string, roleID string,) error {
 	// kiểm tra user tồn tại
 	user, err := s.userRepo.GetByID(userID)
 	if err != nil {
 		return err
 	}
-
 	// kiểm tra role tồn tại
 	_, err = s.roleRepo.GetByID(roleID)
 	if err != nil {
 		return err
 	}
-
 	// tránh update vô nghĩa
 	if user.RoleID == roleID {
 		return errors.New("user already has this role")
 	}
 
-	return s.userRepo.UpdateRole(
-		userID,
-		roleID,
-	)
+	oldRoleID := user.RoleID
+	err = s.userRepo.UpdateRole(
+        userID,
+        roleID,
+    )
+    if err != nil {
+        return err
+    }
+
+	audit := &model.AuditLog{
+		ID:             utils.NewUUID(),
+		TenantID:       user.TenantID,
+		TargetUserID:   &user.ID,
+		Action:         "USER_ROLE_CHANGE",
+		EntityType:     "USER",
+		EntityID:       user.ID,
+		BeforeData:     utils.StringPtr(oldRoleID),
+		AfterData:      utils.StringPtr(roleID),
+		EventTimestamp: time.Now(),
+	}
+	_ = s.auditRepo.Create(audit)
+
+	return nil
 }

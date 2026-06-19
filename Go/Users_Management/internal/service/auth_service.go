@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"go-rbac-system/internal/constants"
@@ -23,15 +24,18 @@ type AuthService interface {
 type authService struct {
 	authRepo repository.AuthRepository
 	roleRepo repository.RoleRepository
+	auditRepo repository.AuditRepository
 }
 
 func NewAuthService(
 	authRepo repository.AuthRepository,
 	roleRepo repository.RoleRepository,
+	auditRepo repository.AuditRepository,
 ) AuthService {
 	return &authService{
 		authRepo: authRepo,
 		roleRepo: roleRepo,
+		auditRepo: auditRepo,
 	}
 }
 
@@ -74,6 +78,26 @@ func (s *authService) Login(
 	if err != nil {
 		return nil, err
 	}
+
+	audit := &model.AuditLog{
+        ID:             utils.NewUUID(),
+        TenantID:       user.TenantID,
+        Actor:          user.Username,
+        ActorID:        &user.ID,
+        TargetUserID:   &user.ID,
+        Action:         "USER_LOGIN",
+        EntityType:     "USER",
+        EntityID:       user.ID,
+        EventTimestamp: time.Now(),
+        Metadata: utils.StringPtr(
+            fmt.Sprintf(
+                `{"roleId":"%s","mustChangePassword":%t}`,
+                user.RoleID,
+                user.MustChangePassword,
+            ),
+        ),
+    }
+    _ = s.auditRepo.Create(audit)
 
 	return &dto.LoginResponse{
 		AccessToken: token,

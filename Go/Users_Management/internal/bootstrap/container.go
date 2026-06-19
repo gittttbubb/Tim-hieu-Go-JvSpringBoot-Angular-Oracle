@@ -36,9 +36,10 @@ func NewContainer(cfg *config.Config, db *sql.DB) *Container {
 	auditRepo := repository.NewAuditRepository(db)
 	passwordResetRepo := repository.NewPasswordResetRepository(db)
 
+
 	// services
-	authService := service.NewAuthService(authRepo, roleRepo)
-	userService := service.NewUserService(userRepo, roleRepo)
+	authService := service.NewAuthService(authRepo, roleRepo, auditRepo)
+	userService := service.NewUserService(userRepo, roleRepo, auditRepo)
 	roleService := service.NewRoleService(roleRepo)
 	permissionService := service.NewPermissionService(permissionRepo)
 
@@ -54,7 +55,7 @@ func NewContainer(cfg *config.Config, db *sql.DB) *Container {
 		permissionRepo,
 	)
 
-	passwordResetService := service.NewPasswordResetService(userRepo, passwordResetRepo)
+	passwordResetService := service.NewPasswordResetService(userRepo, passwordResetRepo, auditRepo)
 	auditService := service.NewAuditService(auditRepo)
 
 	// middleware
@@ -65,10 +66,8 @@ func NewContainer(cfg *config.Config, db *sql.DB) *Container {
 	return &Container{
 		Config: cfg,
 		DB:     db,
-
 		AuthMiddleware:       authMiddleware,
 		PermissionMiddleware: permissionMiddleware,
-
 		AuthHandler:       handler.NewAuthHandler(authService, passwordResetService, cfg),
 		UserHandler:       handler.NewUserHandler(userService, userOverrideService),
 		RoleHandler:       handler.NewRoleHandler(roleService, rolePermissionService),

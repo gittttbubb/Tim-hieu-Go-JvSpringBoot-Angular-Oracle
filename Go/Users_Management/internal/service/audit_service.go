@@ -17,7 +17,7 @@ type AuditContext struct {
 }
 
 type AuditService interface {
-	Log(action string, ctx *AuditContext) error
+	Log(audit *model.AuditLog) error
 	GetByID(id string,) (*model.AuditLog, error)
 	ListByActorID(actorID string,) ([]model.AuditLog, error)
 	ListByEntity(entityType string, entityID string,) ([]model.AuditLog, error)
@@ -44,21 +44,14 @@ func NewAuditService(auditRepo repository.AuditRepository,) AuditService {
 	}
 }
 
-func (s *auditService) Log(action string, ctx *AuditContext) error {
-	audit := &model.AuditLog{
-		ID:       utils.NewUUID(),
-		TenantID: ctx.TenantID,
-		Actor:    ctx.Actor,
-		Action:   normalizeAction(action),
-		EventTimestamp: time.Now(),
-		ActorID: utils.StringPtr(ctx.UserID),
-		IPAddress: utils.StringPtr(ctx.IP),
-		// optional (Phase 9 có thể mở rộng)
-		EntityType: "",
-		EntityID:   "",
-	}
-
-	return s.auditRepo.Create(audit)
+func (s *auditService) Log(audit *model.AuditLog,) error {
+    if audit.ID == "" {
+        audit.ID = utils.NewUUID()
+    }
+    if audit.EventTimestamp.IsZero() {
+        audit.EventTimestamp = time.Now()
+    }
+    return s.auditRepo.Create(audit)
 }
 
 func (s *auditService) GetByID(
