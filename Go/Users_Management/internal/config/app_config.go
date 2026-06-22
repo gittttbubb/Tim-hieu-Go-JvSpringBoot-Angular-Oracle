@@ -2,7 +2,7 @@ package config
 
 type Config struct {
 	App      AppConfig      `mapstructure:"app"`
-	Database DatabaseConfig `mapstructure:"databse-oracle"`
+	Database DatabaseConfig `mapstructure:"database-oracle"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
 }
 

@@ -30,7 +30,7 @@ func NewPermissionMiddleware(authService service.AuthService, permissionRepo rep
 
 func (m *permissionMiddleware) Require(permissionCode string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// 1. Get claims from context
+		// 1. Lấy thông tin từ context
 		claimsValue := c.Locals(constants.ContextClaims)
 		if claimsValue == nil {
 			return response.Error(
@@ -39,6 +39,7 @@ func (m *permissionMiddleware) Require(permissionCode string) fiber.Handler {
 				"unauthorized",
 			)
 		}
+		// Ép kiểu Claims
 		claims, ok := claimsValue.(*utils.Claims)
 		if !ok {
 			return response.Error(
@@ -47,7 +48,7 @@ func (m *permissionMiddleware) Require(permissionCode string) fiber.Handler {
 				"invalid auth context",
 			)
 		}
-		// 2. Load authorization raw data
+		// 2. Load quyền từ DB
 		rolePermissions, userOverrides, err := m.authService.LoadAuthorizationData(claims.UserID, claims.RoleID,)
 		if err != nil {
 			return response.Error(
@@ -94,6 +95,11 @@ func (m *permissionMiddleware) Require(permissionCode string) fiber.Handler {
 }
 
 // Helpers
+// tạo map[string]string. Kết quả VD:{
+//     "p1": "USER_VIEW",
+//     "p2": "USER_CREATE",
+//     "p3": "USER_DELETE",
+// }
 func buildPermissionCodeMap(permissions []model.Permission,) map[string]string {
 	m := make(map[string]string, len(permissions))
 	for _, p := range permissions {
