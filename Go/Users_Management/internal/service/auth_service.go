@@ -25,42 +25,35 @@ type authService struct {
 	authRepo repository.AuthRepository
 	roleRepo repository.RoleRepository
 	auditRepo repository.AuditRepository
+	rolePermissionService RolePermissionService
 }
 
 func NewAuthService(
 	authRepo repository.AuthRepository,
 	roleRepo repository.RoleRepository,
 	auditRepo repository.AuditRepository,
+	rolePermissionService RolePermissionService,
 ) AuthService {
 	return &authService{
 		authRepo: authRepo,
 		roleRepo: roleRepo,
 		auditRepo: auditRepo,
+		rolePermissionService: rolePermissionService,
 	}
 }
 
-func (s *authService) Login(
-	req *dto.LoginRequest,
-	jwtSecret string,
-	jwtExpiry time.Duration,
-) (*dto.LoginResponse, error) {
-
+func (s *authService) Login(req *dto.LoginRequest, jwtSecret string, jwtExpiry time.Duration,) (*dto.LoginResponse, error) {
 	user, err := s.authRepo.GetUserByUsername(
 		req.Username,
 	)
 	if err != nil {
 		return nil, err
 	}
-
-	if !utils.CheckPassword(
-		user.PasswordHash,
-		req.Password,
-	) {
+	if !utils.CheckPassword(user.PasswordHash, req.Password,) {
 		return nil, errors.New(
 			"invalid username or password",
 		)
 	}
-
 	if user.Status == constants.UserStatusLocked {
 		return nil, errors.New(
 			"user account is locked",
@@ -75,6 +68,10 @@ func (s *authService) Login(
 		jwtSecret,
 		jwtExpiry,
 	)
+	if err != nil {
+		return nil, err
+	}
+	permissions, err := s.rolePermissionService.GetEffectivePermissions(user.ID, user.RoleID,)
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +104,7 @@ func (s *authService) Login(
 		UserID:   user.ID,
 		Username: user.Username,
 		RoleID:   user.RoleID,
+		Permissions: permissions,
 
 		MustChangePassword: user.MustChangePassword,
 	}, nil

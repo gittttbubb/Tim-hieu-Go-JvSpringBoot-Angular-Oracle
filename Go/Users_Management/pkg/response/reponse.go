@@ -2,14 +2,8 @@ package response
 
 import "github.com/gofiber/fiber/v2"
 
-func Success(
-	c *fiber.Ctx,
-	data interface{},
-) error {
-
-	return c.Status(
-		fiber.StatusOK,
-	).JSON(
+func Success(c *fiber.Ctx, data interface{},) error {
+	return c.Status(fiber.StatusOK,).JSON(
 		fiber.Map{
 			"success": true,
 			"data":    data,
@@ -17,14 +11,8 @@ func Success(
 	)
 }
 
-func Created(
-	c *fiber.Ctx,
-	data interface{},
-) error {
-
-	return c.Status(
-		fiber.StatusCreated,
-	).JSON(
+func Created(c *fiber.Ctx, data interface{},) error {
+	return c.Status(fiber.StatusCreated,).JSON(
 		fiber.Map{
 			"success": true,
 			"data":    data,
@@ -32,12 +20,7 @@ func Created(
 	)
 }
 
-func Error(
-	c *fiber.Ctx,
-	status int,
-	message string,
-) error {
-
+func Error(c *fiber.Ctx, status int, message string,) error {
 	return c.Status(status).JSON(
 		fiber.Map{
 			"success": false,

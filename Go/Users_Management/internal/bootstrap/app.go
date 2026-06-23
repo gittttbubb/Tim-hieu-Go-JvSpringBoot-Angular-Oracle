@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"go-rbac-system/internal/routes"
 
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -11,7 +12,12 @@ func NewApp() *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName: "go-rbac-system",
 	})
-
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:4200",
+		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders: "Origin,Content-Type,Accept,Authorization",
+		AllowCredentials: true,
+	}))
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{

@@ -13,6 +13,12 @@ type LoginResponse struct {
 	UserID   string `json:"userId"`
 	Username string `json:"username"`
 	RoleID   string `json:"roleId"`
+	Permissions []UserPermission `json:"permissions"`
 
 	MustChangePassword bool `json:"mustChangePassword"`
+}
+
+type UserPermission struct {
+	PermissionID string `json:"permissionId"`
+	DataScope    string `json:"dataScope"`
 }

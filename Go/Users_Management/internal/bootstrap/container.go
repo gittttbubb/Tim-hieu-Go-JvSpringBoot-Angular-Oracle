@@ -38,7 +38,6 @@ func NewContainer(cfg *config.Config, db *sql.DB) *Container {
 
 
 	// services
-	authService := service.NewAuthService(authRepo, roleRepo, auditRepo)
 	userService := service.NewUserService(userRepo, roleRepo, auditRepo)
 	roleService := service.NewRoleService(roleRepo)
 	permissionService := service.NewPermissionService(permissionRepo)
@@ -47,7 +46,9 @@ func NewContainer(cfg *config.Config, db *sql.DB) *Container {
 		rolePermissionRepo,
 		roleRepo,
 		permissionRepo,
+		userOverrideRepo,
 	)
+	authService := service.NewAuthService(authRepo, roleRepo, auditRepo, rolePermissionService)
 
 	userOverrideService := service.NewUserPermissionOverrideService(
 		userOverrideRepo,
