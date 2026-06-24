@@ -12,23 +12,27 @@ type RolePermissionService interface {
 	GetByRoleID(roleID string,) ([]dto.RolePermissionResponse, error)
 	Assign(req *dto.AssignRolePermissionRequest,) error
 	Remove(roleID string, permissionID string,) error
+	GetEffectivePermissions(userID string, roleID string,) ([]dto.UserPermission, error)
 }
 
 type rolePermissionService struct {
 	rolePermissionRepo repository.RolePermissionRepository
 	roleRepo           repository.RoleRepository
 	permissionRepo     repository.PermissionRepository
+	userPermissionOverrideRepo repository.UserPermissionOverrideRepository
 }
 
 func NewRolePermissionService(
 	rolePermissionRepo repository.RolePermissionRepository,
 	roleRepo repository.RoleRepository,
 	permissionRepo repository.PermissionRepository,
+	userPermissionOverrideRepo repository.UserPermissionOverrideRepository,
 ) RolePermissionService {
 	return &rolePermissionService{
 		rolePermissionRepo: rolePermissionRepo,
 		roleRepo:           roleRepo,
 		permissionRepo:     permissionRepo,
+		userPermissionOverrideRepo: userPermissionOverrideRepo,
 	}
 }
 
@@ -133,4 +137,56 @@ func (s *rolePermissionService) Remove(
 	}
 
 	return nil
+}
+
+func (s *rolePermissionService) GetEffectivePermissions(userID string, roleID string,) ([]dto.UserPermission, error) {
+	rolePermissions, err := s.rolePermissionRepo.ListByRoleID(roleID)
+	if err != nil {
+		return nil, err
+	}
+	userOverrides, err := s.userPermissionOverrideRepo.GetByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	type permissionItem struct {
+		Granted   bool
+		DataScope string
+	}
+	permissionMap := make(
+		map[string]permissionItem,
+	)
+	// Load role permissions
+	for _, item := range rolePermissions {
+		permissionMap[item.PermissionID] =
+			permissionItem{
+				Granted:   item.Granted,
+				DataScope: item.DataScope,
+			}
+	}
+	// Override bởi user
+	for _, item := range userOverrides {
+		permissionMap[item.PermissionID] =
+			permissionItem{
+				Granted:   item.Granted,
+				DataScope: item.DataScope,
+			}
+	}
+	result := make(
+		[]dto.UserPermission,
+		0,
+		len(permissionMap),
+	)
+	for permissionID, permission := range permissionMap {
+		if !permission.Granted {
+			continue
+		}
+		result = append(
+			result,
+			dto.UserPermission{
+				PermissionID: permissionID,
+				DataScope:    permission.DataScope,
+			},
+		)
+	}
+	return result, nil
 }
