@@ -205,10 +205,11 @@ func (s *userService) Update(id string, req *dto.UpdateUserRequest,) error {
 		return err
 	}
 	before := fmt.Sprintf(
-		`{"fullName":"%s","email":"%s","roleId":"%s","status":"%s"}`, user.FullName, user.Email, user.RoleID, user.Status,
+		`{"fullName":"%s","userName":"%s","email":"%s","roleId":"%s","status":"%s"}`, user.FullName, user.Username, user.Email, user.RoleID, user.Status,
 	)
 
 	user.FullName = req.FullName
+	user.Username = req.Username
 	user.Email = req.Email
 	user.Phone = req.Phone
 	user.RoleID = req.RoleID
@@ -216,7 +217,7 @@ func (s *userService) Update(id string, req *dto.UpdateUserRequest,) error {
 	user.UpdatedAt = time.Now()
 
 	after := fmt.Sprintf(
-		`{"fullName":"%s","email":"%s","roleId":"%s","status":"%s"}`, req.FullName, req.Email, req.RoleID, req.Status,
+		`{"fullName":"%s","userName":"%s","email":"%s","roleId":"%s","status":"%s"}`, req.FullName, req.Username, req.Email, req.RoleID, req.Status,
 	)
 
 	 err = s.userRepo.Update(user)

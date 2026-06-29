@@ -13,8 +13,8 @@ import (
 type RoleService interface {
 	GetByID(id string) (*dto.RoleResponse, error)
 	List() ([]dto.RoleResponse, error)
-	Create(req *dto.CreateRoleRequest,) error
-	Update(id string, req *dto.UpdateRoleRequest,) error
+	Create(req *dto.CreateRoleRequest) error
+	Update(id string, req *dto.UpdateRoleRequest) error
 	Delete(id string) error
 }
 
@@ -131,7 +131,15 @@ func (s *roleService) Update(
 	if err != nil {
 		return err
 	}
+	existing, err := s.roleRepo.GetByName(req.Name)
 
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+	if existing != nil && existing.ID != id {
+		return errors.New("role name already exists")
+	}
+	role.Name = req.Name
 	role.DisplayName = req.DisplayName
 	role.Description = &req.Description
 

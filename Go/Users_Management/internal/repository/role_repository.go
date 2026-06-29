@@ -96,9 +96,10 @@ func (r *roleRepository) Create(role *model.Role,) error {
 }
 
 func (r *roleRepository) Update(role *model.Role,) error {
-	query := `UPDATE roles SET display_name = :1, description = :2 WHERE id = :3`
+	query := `UPDATE roles SET name = :1, display_name = :2, description = :3 WHERE id = :4`
 	_, err := r.db.Exec(
 		query,
+		role.Name,
 		role.DisplayName,
 		role.Description,
 		role.ID,

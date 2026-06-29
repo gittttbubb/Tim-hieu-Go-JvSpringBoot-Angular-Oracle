@@ -12,6 +12,7 @@ type CreateUserRequest struct {
 
 type UpdateUserRequest struct {
 	FullName string `json:"fullName" validate:"required,max=100"`
+	Username string `json:"username" validate:"required,min=3,max=50"`
 	Email    string `json:"email" validate:"required,email,max=200"`
 	Phone    string `json:"phone" validate:"required,max=20"`
 	RoleID   string `json:"roleId" validate:"required,uuid"`

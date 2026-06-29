@@ -59,11 +59,8 @@ export class AuthStore {
         return this.userSignal();
     }
 
-    hasPermission(permissionId: string): boolean {
-        return (
-            this.userSignal()?.permissions
-                .some(permission => permission.permissionId === permissionId) ?? false
-        );
+    hasPermission(featureCode: string): boolean {
+        return (this.userSignal()?.permissions.some(permission => permission.featureCode === featureCode) ?? false);
     }
 
     hasAnyPermission(permissions: string[]): boolean {
@@ -87,7 +84,9 @@ export class AuthStore {
         const permission = this.getPermission(permissionId);
         return (permission?.dataScope ?? null);
     }
-
+    //Nếu trong tokenSignal đang là một chuỗi tokenthì !tokenSignal() sẽ là false, và !!tokenSignal() sẽ thành true (Đã đăng nhập).
+    //Nếu trong tokenSignal đang là null, thì !tokenSignal() sẽ là true, và !!tokenSignal() sẽ thành false (Chưa đăng nhập).
+    // Hàm isAuthenticated() sẽ trả về true nếu hệ thống đã tìm thấy token lưu trong tokenSignal, ngược lại nó trả về false 
     isAuthenticated(): boolean {
         return !!this.tokenSignal();
     }

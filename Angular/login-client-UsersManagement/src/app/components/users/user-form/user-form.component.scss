@@ -1,0 +1,140 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.user-form-page {
+    padding: 1.5rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 1.5rem;
+
+    h2 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    p {
+        margin-top: .35rem;
+        color: #64748b;
+    }
+}
+
+.header-actions {
+    display: flex;
+    gap: .75rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,
+            minmax(320px, 1fr));
+    gap: 1.25rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.field label {
+    font-weight: 600;
+    color: #334155;
+}
+
+.meta-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+
+    border-top: 1px solid #e2e8f0;
+
+    display: flex;
+    gap: 2rem;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.meta-item span {
+    color: #64748b;
+    font-size: .875rem;
+}
+
+.meta-item strong {
+    color: #0f172a;
+}
+
+.form-actions {
+    margin-top: 2rem;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+:host ::ng-deep {
+
+    .p-card {
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: none;
+    }
+
+    .p-card-body {
+        padding: 2rem;
+    }
+
+    .p-inputtext,
+    .p-select {
+        width: 100%;
+    }
+
+    .p-button {
+        min-width: 120px;
+    }
+}
+
+.temp-password-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.password-description {
+    margin: 0;
+}
+
+.password-box {
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--surface-100);
+    border: 1px solid var(--surface-border);
+
+    font-family: monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+
+    word-break: break-all;
+}
+
+.password-note {
+    color: var(--text-color-secondary);
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}

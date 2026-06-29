@@ -1,0 +1,50 @@
+.override-page {
+    padding: 1.5rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    p {
+        margin-top: 0.25rem;
+        color: #64748b;
+    }
+}
+
+.override-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+:host ::ng-deep {
+
+    .p-datatable {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .p-tag {
+        min-width: 80px;
+        justify-content: center;
+    }
+
+    .p-dropdown,
+    textarea {
+        width: 100%;
+    }
+}

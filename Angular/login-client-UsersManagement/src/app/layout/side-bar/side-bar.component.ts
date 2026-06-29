@@ -1,11 +1,15 @@
 import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
+import { PERMISSIONS } from '../../constants/permission';
 
 @Component({
   selector: 'app-side-bar',
-  imports: [],
+  imports: [RouterLink, RouterLinkActive, HasPermissionDirective],
   templateUrl: './side-bar.component.html',
   styleUrl: './side-bar.component.scss'
 })
 export class SideBarComponent {
-
+  readonly permissions = PERMISSIONS;
+ 
 }

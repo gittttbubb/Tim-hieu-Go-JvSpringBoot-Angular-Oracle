@@ -1,1 +1,40 @@
-<p>audit-list works!</p>
+<div class="audit-page">
+    <div class="page-header">
+        <div>
+            <h2>Audit Logs</h2>
+        </div>
+    </div>
+
+    <p-card>
+        <div class="toolbar">
+            <input pInputText [(ngModel)]="keyword" (input)="applyFilter()" placeholder="Search..." />
+            <button pButton icon="pi pi-filter-slash" label="Clear" severity="secondary" (click)="clearFilter()">
+            </button>
+
+        </div>
+
+        <p-table [value]="filteredAudits" [loading]="loading" [rows]="20" [paginator]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Action</th>
+                    <th>Actor</th>
+                    <th>Entity</th>
+                    <th>Time</th>
+                    <th width="120">
+                        Action
+                    </th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td> <p-tag [value]="item.action"></p-tag> </td>
+                    <td>{{ item.actor }}</td>
+                    <td>{{ item.entityType }}</td>
+                    <td>{{ item.eventTimestamp | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                    <td><a [routerLink]="['/audits',item.id]"> Detail </a></td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>
+</div>

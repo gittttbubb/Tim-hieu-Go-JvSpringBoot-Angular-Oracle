@@ -1,0 +1,92 @@
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.user-page {
+    width: 100%;
+    min-width: 0;
+    padding: 1.5rem;
+    box-sizing: border-box;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 1.5rem;
+
+    h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    p {
+        margin: 0.25rem 0 0;
+        color: #64748b;
+    }
+}
+
+.table-container {
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: white;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+:host ::ng-deep {
+
+    .p-datatable {
+        min-width: 100%;
+    }
+
+    .p-datatable-table {
+        width: 100%;
+    }
+
+    .p-datatable-wrapper {
+        overflow-x: auto;
+    }
+
+    .p-datatable-thead > tr > th {
+        background: #f8fafc;
+        color: #334155;
+        font-weight: 600;
+        white-space: nowrap;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .p-datatable-tbody > tr > td {
+        white-space: nowrap;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .p-datatable-tbody > tr:hover {
+        background: #f8fafc;
+    }
+
+    .p-tag {
+        min-width: 90px;
+        justify-content: center;
+    }
+
+    .p-button.p-button-text {
+        width: 2rem;
+        height: 2rem;
+    }
+}

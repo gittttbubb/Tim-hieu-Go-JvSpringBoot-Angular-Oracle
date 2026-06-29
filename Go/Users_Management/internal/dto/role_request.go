@@ -7,6 +7,7 @@ type CreateRoleRequest struct {
 }
 
 type UpdateRoleRequest struct {
+	Name        string `json:"name" validate:"required,max=50"`
 	DisplayName string `json:"displayName" validate:"required,max=100"`
 	Description string `json:"description" validate:"max=255"`
 }

@@ -19,19 +19,12 @@ type AuditContext struct {
 type AuditService interface {
 	Log(audit *model.AuditLog) error
 	GetByID(id string,) (*model.AuditLog, error)
+	GetAll() ([]model.AuditLog, error)
 	ListByActorID(actorID string,) ([]model.AuditLog, error)
 	ListByEntity(entityType string, entityID string,) ([]model.AuditLog, error)
 	ListByTenant(tenantID string,) ([]model.AuditLog, error)
-	ListWithFilter(
-	tenantID string,
-	actorID string,
-	entityType string,
-	entityID string,
-	from time.Time,
-	to time.Time,
-	limit int,
-	offset int,
-) ([]model.AuditLog, error)
+	ListWithFilter(tenantID string, actorID string, entityType string,entityID string,from time.Time,
+		to time.Time,limit int,offset int) ([]model.AuditLog, error)
 }
 
 type auditService struct {
@@ -59,6 +52,10 @@ func (s *auditService) GetByID(
 ) (*model.AuditLog, error) {
 
 	return s.auditRepo.GetByID(id)
+}
+
+func (s *auditService) GetAll() ([]model.AuditLog, error) {
+	return s.auditRepo.GetAll()
 }
 
 func (s *auditService) ListByActorID(

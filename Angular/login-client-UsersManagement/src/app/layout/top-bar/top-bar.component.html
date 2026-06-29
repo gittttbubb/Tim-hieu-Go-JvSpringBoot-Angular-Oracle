@@ -1,1 +1,13 @@
-<p>top-bar works!</p>
+<header class="topbar">
+    <div class="page-title">
+        Users Management
+    </div>
+    <div class="actions">
+        <span class="username">
+            <i class="pi pi-user"></i>
+            {{ username }}
+        </span>
+        <button pButton severity="secondary" icon="pi pi-lock" label="Đổi mật khẩu" routerLink="/change-password"></button>
+        <button pButton severity="danger" icon="pi pi-sign-out" label="Đăng xuất" (click)="logout()"></button>
+    </div>
+</header>

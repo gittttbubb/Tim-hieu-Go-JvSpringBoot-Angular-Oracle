@@ -1,11 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AuthStore } from '../../store/auth.store';
+import { Router, RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-top-bar',
-  imports: [],
+  imports: [ButtonModule, RouterLink],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.scss'
 })
 export class TopBarComponent {
+  private readonly authStore = inject(AuthStore);
+  private readonly router = inject(Router);
 
+  get username(): string {
+    return (this.authStore.getUser()?.username ?? '');
+  }
+
+  logout(): void {
+    this.authStore.clear();
+    this.router.navigate(['/login']);
+  }
 }

@@ -9,16 +9,16 @@ import (
 )
 
 type RolePermissionService interface {
-	GetByRoleID(roleID string,) ([]dto.RolePermissionResponse, error)
-	Assign(req *dto.AssignRolePermissionRequest,) error
-	Remove(roleID string, permissionID string,) error
-	GetEffectivePermissions(userID string, roleID string,) ([]dto.UserPermission, error)
+	GetByRoleID(roleID string) ([]dto.RolePermissionResponse, error)
+	Assign(req *dto.AssignRolePermissionRequest) error
+	Remove(roleID string, permissionID string) error
+	GetEffectivePermissions(userID string, roleID string) ([]dto.UserPermission, error)
 }
 
 type rolePermissionService struct {
-	rolePermissionRepo repository.RolePermissionRepository
-	roleRepo           repository.RoleRepository
-	permissionRepo     repository.PermissionRepository
+	rolePermissionRepo         repository.RolePermissionRepository
+	roleRepo                   repository.RoleRepository
+	permissionRepo             repository.PermissionRepository
 	userPermissionOverrideRepo repository.UserPermissionOverrideRepository
 }
 
@@ -29,9 +29,9 @@ func NewRolePermissionService(
 	userPermissionOverrideRepo repository.UserPermissionOverrideRepository,
 ) RolePermissionService {
 	return &rolePermissionService{
-		rolePermissionRepo: rolePermissionRepo,
-		roleRepo:           roleRepo,
-		permissionRepo:     permissionRepo,
+		rolePermissionRepo:         rolePermissionRepo,
+		roleRepo:                   roleRepo,
+		permissionRepo:             permissionRepo,
 		userPermissionOverrideRepo: userPermissionOverrideRepo,
 	}
 }
@@ -155,7 +155,7 @@ func (s *rolePermissionService) GetEffectivePermissions(userID string, roleID st
 	permissionMap := make(
 		map[string]permissionItem,
 	)
-	// Load role permissions
+	// Role permissions
 	for _, item := range rolePermissions {
 		permissionMap[item.PermissionID] =
 			permissionItem{
@@ -163,7 +163,7 @@ func (s *rolePermissionService) GetEffectivePermissions(userID string, roleID st
 				DataScope: item.DataScope,
 			}
 	}
-	// Override bởi user
+	// User override
 	for _, item := range userOverrides {
 		permissionMap[item.PermissionID] =
 			permissionItem{
@@ -171,19 +171,20 @@ func (s *rolePermissionService) GetEffectivePermissions(userID string, roleID st
 				DataScope: item.DataScope,
 			}
 	}
-	result := make(
-		[]dto.UserPermission,
-		0,
-		len(permissionMap),
-	)
+	result := make([]dto.UserPermission, 0, len(permissionMap),)
 	for permissionID, permission := range permissionMap {
 		if !permission.Granted {
+			continue
+		}
+		permissionInfo, err := s.permissionRepo.GetByID(permissionID)
+		if err != nil {
 			continue
 		}
 		result = append(
 			result,
 			dto.UserPermission{
 				PermissionID: permissionID,
+				FeatureCode:  permissionInfo.FeatureCode,
 				DataScope:    permission.DataScope,
 			},
 		)

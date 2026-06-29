@@ -1,0 +1,122 @@
+<p-confirmDialog />
+<div class="user-form-page">
+    <div class="page-header">
+        <div>
+            <h2>
+                @if (isCreate()) {
+                Create User
+                } @else if (isEdit()) {
+                Edit User
+                } @else {
+                User Detail
+                }
+            </h2>
+
+        </div>
+
+        <div class="header-actions">
+            @if (isDetail()) {
+            <button pButton icon="pi pi-arrow-left" label="Back" severity="secondary"
+                [routerLink]="['/users']"></button>
+            <button pButton icon="pi pi-pencil" label="Edit" severity="info" (click)="goEdit()"></button>
+            <button pButton icon="pi pi-key" label="Permissions" severity="secondary"
+                [routerLink]="['/users/overrides', userId]">
+            </button>
+            }
+        </div>
+    </div>
+
+    <p-card>
+        <form [formGroup]="form" (ngSubmit)="save()">
+            <div class="form-grid">
+                <div class="field">
+                    <label>Full Name</label>
+                    <input pInputText formControlName="fullName">
+                </div>
+                <div class="field">
+                    <label>Username</label>
+                    <input pInputText formControlName="username">
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input pInputText formControlName="email">
+                </div>
+                <div class="field">
+                    <label>Phone</label>
+                    <input pInputText formControlName="phone">
+                </div>
+                <div class="field">
+                    <label>Role</label>
+                    <p-select formControlName="roleId" [options]="roles" optionLabel="displayName" optionValue="id"
+                        placeholder="Select Role">
+                    </p-select>
+                </div>
+
+                @if (!isCreate()) {
+                <div class="field">
+                    <label>Status</label>
+                    <p-select formControlName="status" [options]="statuses" optionLabel="label"
+                        optionValue="value"></p-select>
+                </div>
+                }
+            </div>
+
+            @if (user && !isCreate()) {
+            <div class="meta-section">
+                <div class="meta-item">
+                    <span>Created</span>
+                    <strong>{{ user.createdAt | date:'dd/MM/yyyy HH:mm:ss'}}</strong>
+                </div>
+                <div class="meta-item">
+                    <span>Updated</span>
+                    <strong>{{ user.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</strong>
+                </div>
+            </div>
+            }
+
+            <div class="form-actions">
+                @if (isCreate()) {
+                <button pButton type="submit" icon="pi pi-save" label="Create" [loading]="loading"></button>
+                }
+                @if (isEdit()) {
+                <button pButton type="submit" icon="pi pi-save" label="Update" [loading]="loading"></button>
+                <button pButton type="button" severity="secondary" label="Cancel"
+                    [routerLink]="['/users', userId]"></button>
+                }
+                @if (isDetail()) {
+                <button pButton type="button" severity="warn" icon="pi pi-lock" label="Lock"
+                    (click)="lockUser()"></button>
+                <button pButton type="button" severity="success" icon="pi pi-lock-open" label="Unlock"
+                    (click)="unlockUser()">
+                </button>
+                <button pButton type="button" severity="contrast" icon="pi pi-refresh" label="Reset Password"
+                    (click)="resetPassword()">
+                </button>
+                <button pButton type="button" severity="danger" icon="pi pi-trash" label="Delete"
+                    (click)="deleteUser()">
+                </button>
+                }
+            </div>
+        </form>
+    </p-card>
+    <p-dialog header="Temporary Password" [(visible)]="showTempPasswordDialog" [modal]="true" [closable]="true"
+        [draggable]="false" [resizable]="false" [style]="{ width: '500px' }">
+        <div class="temp-password-container">
+            <p class="password-description">
+                Temporary password generated successfully.
+            </p>
+            <div class="password-box">
+                {{ tempPassword }}
+            </div>
+            <small class="password-note">
+                User must change this password on next login.
+            </small>
+            <div class="dialog-actions">
+                <button pButton type="button" icon="pi pi-copy" label="Copy Password" (click)="copyPassword()"></button>
+                <button pButton type="button" severity="secondary" label="Close"
+                    (click)="showTempPasswordDialog = false">
+                </button>
+            </div>
+        </div>
+    </p-dialog>
+</div>

@@ -1,1 +1,22 @@
-<p>login works!</p>
+<div class="login-page">
+    <div class="login-wrapper">
+        <p-card class="login-card">
+            <div class="login-header">
+                <h1>User Management</h1>
+            </div>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+                <div class="field">
+                    <label>Username</label>
+                    <input pInputText formControlName="username" placeholder="Nhập tài khoản" />
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <p-password formControlName="password" [feedback]="false" [toggleMask]="true"
+                        placeholder="Nhập mật khẩu">
+                    </p-password>
+                </div>
+                <button pButton type="submit" label="Đăng nhập" [loading]="loading" class="w-full"></button>
+            </form>
+        </p-card>
+    </div>
+</div>

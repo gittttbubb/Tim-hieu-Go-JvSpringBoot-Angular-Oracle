@@ -20,5 +20,6 @@ type LoginResponse struct {
 
 type UserPermission struct {
 	PermissionID string `json:"permissionId"`
+	FeatureCode string `json:"featureCode"`
 	DataScope    string `json:"dataScope"`
 }

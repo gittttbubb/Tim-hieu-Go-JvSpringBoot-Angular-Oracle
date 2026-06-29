@@ -1,0 +1,58 @@
+.audit-detail-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-header h2 {
+    margin: 0;
+}
+
+.subtitle {
+    color: var(--text-color-secondary);
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.item label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+}
+
+.full-row {
+    grid-column: 1 / -1;
+}
+
+.json-section {
+    margin-top: 1.5rem;
+}
+
+.json-section h4 {
+    margin-bottom: .5rem;
+}
+
+.json-section pre {
+    background: var(--surface-100);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

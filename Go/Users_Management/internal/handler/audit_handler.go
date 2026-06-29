@@ -30,6 +30,20 @@ func (h *AuditHandler) GetByID(c *fiber.Ctx) error {
 	return response.Success(c, log)
 }
 
+func (h *AuditHandler) GetAll(c *fiber.Ctx) error {
+
+	logs, err := h.auditService.GetAll()
+	if err != nil {
+		return response.Error(
+			c,
+			fiber.StatusInternalServerError,
+			err.Error(),
+		)
+	}
+
+	return response.Success(c, logs)
+}
+
 func (h *AuditHandler) ListByActor(c *fiber.Ctx) error {
 	actorID := c.Params("actorId")
 

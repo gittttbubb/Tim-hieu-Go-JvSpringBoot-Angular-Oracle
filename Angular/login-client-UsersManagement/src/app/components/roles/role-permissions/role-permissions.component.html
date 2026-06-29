@@ -1,1 +1,43 @@
-<p>role-permissions works!</p>
+<p-toast />
+<p-confirmDialog />
+<p-card>
+    <ng-template pTemplate="title">
+        Role Permissions
+    </ng-template>
+
+    <p-table [value]="permissions" [loading]="loading">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Group</th>
+                <th>Feature</th>
+                <th>Action</th>
+                <th>Description</th>
+                <th>Granted</th>
+                <th>Scope</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row>
+            <tr>
+                <td>{{ row.featureGroup }}</td>
+                <td>{{ row.featureCode }}</td>
+                <td>{{ row.action }}</td>
+                <td>{{ row.description }}</td>
+                <td><p-checkbox [(ngModel)]="row.granted" [binary]="true"></p-checkbox></td>
+                <td><p-select [options]="scopes" [(ngModel)]="row.dataScope"></p-select></td>
+                <td>
+                    <div class="flex gap-2">
+                        <p-button icon="pi pi-save" severity="success" (onClick)="savePermission(row)"></p-button>
+                        <p-button icon="pi pi-trash" severity="danger" (onClick)="removePermission(row)"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <div class="mt-3">
+        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="back()"></p-button>
+    </div>
+
+</p-card>

@@ -4,17 +4,27 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { jwtInterceptor } from './interceptors/jwt.interceptor';
+import { errorInterceptor } from './interceptors/error.interceptor';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-
     provideAnimationsAsync(),
-
     provideHttpClient(
       withInterceptors([
         jwtInterceptor,
+        errorInterceptor
       ])
     ),
+    MessageService,
+    ConfirmationService,
+    providePrimeNG({
+      theme: {
+        preset: Aura
+      }
+    })
   ],
 };
