@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	// Import the go-ora package and name it go_ora to access go_ora.Out
-	go_ora "github.com/sijms/go-ora/v2"
+	// Import package godror
+	_ "github.com/godror/godror"
 )
 
-// getEnv gets an environment variable with a fallback default value
+// getEnv lấy biến môi trường với giá trị mặc định dự phòng (fallback)
 func getEnv(key, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
@@ -22,31 +22,31 @@ func getEnv(key, defaultValue string) string {
 }
 
 func main() {
-	// Configure Oracle connection settings
+	// Cấu hình các thiết lập kết nối Oracle
 	username := getEnv("DB_USER", "system")
 	password := getEnv("DB_PASSWORD", "vthang2003")
 	host := getEnv("DB_HOST", "localhost")
 	port := getEnv("DB_PORT", "1521")
 	serviceName := getEnv("DB_SERVICE", "xe")
 
-	// Build the Oracle connection URL for go-ora
-	dsn := getEnv("DB_DSN", fmt.Sprintf("oracle://%s:%s@%s:%s/%s", username, password, host, port, serviceName))
+	// Xây dựng DSN kết nối Oracle cho godror dưới dạng logfmt
+	dsn := getEnv("DB_DSN", fmt.Sprintf(`user="%s" password="%s" connectString="%s:%s/%s"`, username, password, host, port, serviceName))
 
-	log.Printf("Connecting to Oracle database on %s:%s/%s as user %s...\n", host, port, serviceName, username)
+	log.Printf("Connecting to Oracle database on %s:%s/%s as user %s using godror...\n", host, port, serviceName, username)
 
-	// Open database connection
-	db, err := sql.Open("oracle", dsn)
+	// Mở kết nối cơ sở dữ liệu
+	db, err := sql.Open("godror", dsn)
 	if err != nil {
 		log.Fatalf("Error opening database connection: %v\n", err)
 	}
 	defer db.Close()
 
-	// Set connection pool limits
+	// Thiết lập giới hạn cho connection pool (nhóm kết nối)
 	db.SetMaxOpenConns(5)
 	db.SetMaxIdleConns(2)
 	db.SetConnMaxLifetime(1 * time.Hour)
 
-	// Verify connection using Ping
+	// Xác minh kết nối bằng cách sử dụng Ping
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -60,10 +60,10 @@ func main() {
 			err, port, username, password, serviceName,
 		)
 	}
-	log.Println("Successfully connected to Oracle Database using go-ora!")
+	log.Println("Successfully connected to Oracle Database using godror!")
 
 	// -------------------------------------------------------------
-	// 1. Initialize Schema from schema.sql
+	// 1. Khởi tạo Schema từ schema.sql
 	// -------------------------------------------------------------
 	fmt.Println("\n--- [1] Initializing Database Schema ---")
 	err = initSchema(db)
@@ -71,12 +71,12 @@ func main() {
 		log.Fatalf("Failed to initialize database schema: %v\n", err)
 	}
 
-	// Create test context for queries
+	// Tạo context thử nghiệm cho các truy vấn
 	runCtx, runCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer runCancel()
 
 	// -------------------------------------------------------------
-	// 2. Call Procedure with OUT Parameter: add_user
+	// 2. Gọi Procedure với tham số OUT: add_user
 	// -------------------------------------------------------------
 	fmt.Println("\n--- [2] Calling Procedure: add_user (with OUT Parameter) ---")
 	
@@ -95,13 +95,12 @@ func main() {
 		var newID int64
 		// :1 -> u.username (IN)
 		// :2 -> u.email (IN)
-		// :3 -> go_ora.Out{Dest: &newID} (OUT) - sizes are not required for numeric outputs
+		// :3 -> sql.Out{Dest: &newID} (OUT)
 		query := "BEGIN add_user(:1, :2, :3); END;"
-		
 		_, err = db.ExecContext(runCtx, query,
 			u.username,
 			u.email,
-			go_ora.Out{Dest: &newID},
+			sql.Out{Dest: &newID},
 		)
 		if err != nil {
 			log.Fatalf("Failed to call add_user procedure: %v\n", err)
@@ -114,24 +113,22 @@ func main() {
 	}
 
 	// -------------------------------------------------------------
-	// 3. Call Procedure with Multiple OUT Parameters: get_user_by_id
+	// 3. Gọi Procedure với nhiều tham số OUT: get_user_by_id
 	// -------------------------------------------------------------
 	fmt.Println("\n--- [3] Calling Procedure: get_user_by_id (with multiple OUT Parameters) ---")
 	{
 		var outUsername string
 		var outEmail string
 
-		// For string OUT parameters in go-ora, we must specify the Size (in bytes).
-		// If we don't, the driver doesn't know how much memory to reserve, causing ORA-06502.
 		// :1 -> firstUserID (IN)
-		// :2 -> go_ora.Out{Dest: &outUsername, Size: 50} (OUT)
-		// :3 -> go_ora.Out{Dest: &outEmail, Size: 100} (OUT)
+		// :2 -> sql.Out{Dest: &outUsername} (OUT)
+		// :3 -> sql.Out{Dest: &outEmail} (OUT)
 		query := "BEGIN get_user_by_id(:1, :2, :3); END;"
 		
 		_, err = db.ExecContext(runCtx, query,
 			firstUserID,
-			go_ora.Out{Dest: &outUsername, Size: 50},
-			go_ora.Out{Dest: &outEmail, Size: 100},
+			sql.Out{Dest: &outUsername},
+			sql.Out{Dest: &outEmail},
 		)
 		if err != nil {
 			log.Fatalf("Failed to call get_user_by_id procedure: %v\n", err)
@@ -142,11 +139,11 @@ func main() {
 	}
 
 	// -------------------------------------------------------------
-	// 4. Call Function returning a value: get_total_users
+	// 4. Gọi Function trả về một giá trị: get_total_users
 	// -------------------------------------------------------------
 	fmt.Println("\n--- [4] Calling Function: get_total_users ---")
 	
-	// Method A: Using SELECT ... FROM DUAL (Standard SQL approach for functions)
+	// Cách A: Sử dụng SELECT ... FROM DUAL (cách tiếp cận SQL tiêu chuẩn cho các function)
 	{
 		var count int
 		query := "SELECT get_total_users() FROM dual"
@@ -157,14 +154,14 @@ func main() {
 		fmt.Printf("Method A (SELECT FROM dual) - Total users: %d\n", count)
 	}
 
-	// Method B: Using PL/SQL Block binding the return value
+	// Cách B: Sử dụng PL/SQL Block liên kết (bind) giá trị trả về
 	{
 		var count int
-		// :1 -> go_ora.Out{Dest: &count} (OUT return value)
+		// :1 -> sql.Out{Dest: &count} (Giá trị trả về OUT)
 		query := "BEGIN :1 := get_total_users(); END;"
 		
 		_, err = db.ExecContext(runCtx, query,
-			go_ora.Out{Dest: &count},
+			sql.Out{Dest: &count},
 		)
 		if err != nil {
 			log.Fatalf("Failed to call get_total_users via PL/SQL: %v\n", err)
@@ -173,11 +170,11 @@ func main() {
 	}
 
 	// -------------------------------------------------------------
-	// 5. Call Function with Arguments returning a value: concat_user_info
+	// 5. Gọi Function có đối số trả về một giá trị: concat_user_info
 	// -------------------------------------------------------------
 	fmt.Println("\n--- [5] Calling Function: concat_user_info (with Argument and Return Value) ---")
 	
-	// Method A: Using SELECT ... FROM DUAL
+	// Cách A: Sử dụng SELECT ... FROM DUAL
 	{
 		var userInfo string
 		// :1 -> firstUserID (IN)
@@ -189,16 +186,15 @@ func main() {
 		fmt.Printf("Method A (SELECT FROM dual) - Info for ID %d: %s\n", firstUserID, userInfo)
 	}
 
-	// Method B: Using PL/SQL block
+	// Cách B: Sử dụng PL/SQL block
 	{
 		var userInfo string
-		// Since this is a string return value in PL/SQL block execution, we must specify Size.
-		// :1 -> go_ora.Out{Dest: &userInfo, Size: 200} (OUT return value)
-		// :2 -> firstUserID (IN argument)
+		// :1 -> sql.Out{Dest: &userInfo} (Giá trị trả về OUT)
+		// :2 -> firstUserID (Tham số đầu vào IN)
 		query := "BEGIN :1 := concat_user_info(:2); END;"
 		
 		_, err = db.ExecContext(runCtx, query,
-			go_ora.Out{Dest: &userInfo, Size: 200},
+			sql.Out{Dest: &userInfo},
 			firstUserID,
 		)
 		if err != nil {
@@ -210,14 +206,14 @@ func main() {
 	fmt.Println("\n--- All tests completed successfully! ---")
 }
 
-// initSchema reads schema.sql, splits it by '/' lines, and executes each SQL block.
+// initSchema đọc file schema.sql, phân tách bằng các dòng "/", và thực thi từng khối lệnh SQL.
 func initSchema(db *sql.DB) error {
 	content, err := os.ReadFile("schema.sql")
 	if err != nil {
 		return fmt.Errorf("failed to read schema.sql: %w", err)
 	}
 
-	// Normalize windows \r\n to \n
+	// Chuẩn hóa ký tự xuống dòng từ \r\n của Windows thành \n
 	normalized := strings.ReplaceAll(string(content), "\r\n", "\n")
 	lines := strings.Split(normalized, "\n")
 
@@ -226,7 +222,7 @@ func initSchema(db *sql.DB) error {
 
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		// If line is just "/", it signifies the end of the current PL/SQL or SQL block
+		// Nếu dòng chỉ chứa "/", nó đánh dấu sự kết thúc của khối PL/SQL hoặc SQL hiện tại
 		if trimmed == "/" {
 			if len(currentBlock) > 0 {
 				blocks = append(blocks, strings.Join(currentBlock, "\n"))
@@ -236,7 +232,7 @@ func initSchema(db *sql.DB) error {
 			currentBlock = append(currentBlock, line)
 		}
 	}
-	// Append remaining query if any
+	// Thêm truy vấn còn lại (nếu có)
 	if len(currentBlock) > 0 {
 		leftover := strings.TrimSpace(strings.Join(currentBlock, "\n"))
 		if leftover != "" {
@@ -244,7 +240,7 @@ func initSchema(db *sql.DB) error {
 		}
 	}
 
-	// Execute each block sequentially
+	// Thực thi tuần tự từng khối lệnh
 	for i, block := range blocks {
 		block = strings.TrimSpace(block)
 		if block == "" {
