@@ -16,23 +16,15 @@ type permissionService struct {
 	permissionRepo repository.PermissionRepository
 }
 
-func NewPermissionService(
-	permissionRepo repository.PermissionRepository,
-) PermissionService {
-	return &permissionService{
-		permissionRepo: permissionRepo,
-	}
+func NewPermissionService(permissionRepo repository.PermissionRepository) PermissionService {
+	return &permissionService{permissionRepo: permissionRepo}
 }
 
-func mapPermissionResponse(
-	permission *model.Permission,
-) *dto.PermissionResponse {
-
+func mapPermissionResponse(permission *model.Permission,) *dto.PermissionResponse {
 	description := ""
 	if permission.Description != nil {
 		description = *permission.Description
 	}
-
 	return &dto.PermissionResponse{
 		ID:           permission.ID,
 		FeatureGroup: permission.FeatureGroup,
@@ -42,52 +34,33 @@ func mapPermissionResponse(
 	}
 }
 
-func (s *permissionService) GetByID(
-	id string,
-) (*dto.PermissionResponse, error) {
-
+func (s *permissionService) GetByID(id string,) (*dto.PermissionResponse, error) {
 	permission, err := s.permissionRepo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
-
 	return mapPermissionResponse(permission), nil
 }
 
-func (s *permissionService) GetByFeatureCode(
-	featureCode string,
-) (*dto.PermissionResponse, error) {
-
-	permission, err := s.permissionRepo.GetByFeatureCode(
-		featureCode,
-	)
+func (s *permissionService) GetByFeatureCode(featureCode string,) (*dto.PermissionResponse, error) {
+	permission, err := s.permissionRepo.GetByFeatureCode(featureCode)
 	if err != nil {
 		return nil, err
 	}
-
 	return mapPermissionResponse(permission), nil
 }
 
 func (s *permissionService) List() ([]dto.PermissionResponse, error,) {
-
 	permissions, err := s.permissionRepo.List()
 	if err != nil {
 		return nil, err
 	}
-
-	result := make(
-		[]dto.PermissionResponse,
-		0,
-		len(permissions),
-	)
-
+	result := make([]dto.PermissionResponse, 0, len(permissions))
 	for _, permission := range permissions {
-
 		description := ""
 		if permission.Description != nil {
 			description = *permission.Description
 		}
-
 		result = append(
 			result,
 			dto.PermissionResponse{
@@ -99,6 +72,5 @@ func (s *permissionService) List() ([]dto.PermissionResponse, error,) {
 			},
 		)
 	}
-
 	return result, nil
 }

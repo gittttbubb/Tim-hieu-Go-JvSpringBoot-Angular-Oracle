@@ -13,10 +13,8 @@ import (
 type Container struct {
 	Config *config.Config
 	DB     *sql.DB
-
 	AuthMiddleware       middleware.AuthMiddleware
 	PermissionMiddleware middleware.PermissionMiddleware
-
 	AuthHandler       *handler.AuthHandler
 	UserHandler       *handler.UserHandler
 	RoleHandler       *handler.RoleHandler
@@ -25,7 +23,6 @@ type Container struct {
 }
 
 func NewContainer(cfg *config.Config, db *sql.DB) *Container {
-
 	// repositories
 	authRepo := repository.NewAuthRepository(db)
 	userRepo := repository.NewUserRepository(db)
@@ -41,7 +38,6 @@ func NewContainer(cfg *config.Config, db *sql.DB) *Container {
 	userService := service.NewUserService(userRepo, roleRepo, auditRepo)
 	roleService := service.NewRoleService(roleRepo)
 	permissionService := service.NewPermissionService(permissionRepo)
-
 	rolePermissionService := service.NewRolePermissionService(
 		rolePermissionRepo,
 		roleRepo,
@@ -49,13 +45,11 @@ func NewContainer(cfg *config.Config, db *sql.DB) *Container {
 		userOverrideRepo,
 	)
 	authService := service.NewAuthService(authRepo, roleRepo, auditRepo, rolePermissionService)
-
 	userOverrideService := service.NewUserPermissionOverrideService(
 		userOverrideRepo,
 		userRepo,
 		permissionRepo,
 	)
-
 	passwordResetService := service.NewPasswordResetService(userRepo, passwordResetRepo, auditRepo)
 	auditService := service.NewAuditService(auditRepo)
 

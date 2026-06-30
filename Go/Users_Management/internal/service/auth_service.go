@@ -28,46 +28,25 @@ type authService struct {
 	rolePermissionService RolePermissionService
 }
 
-func NewAuthService(
-	authRepo repository.AuthRepository,
-	roleRepo repository.RoleRepository,
-	auditRepo repository.AuditRepository,
-	rolePermissionService RolePermissionService,
-) AuthService {
-	return &authService{
-		authRepo: authRepo,
-		roleRepo: roleRepo,
-		auditRepo: auditRepo,
-		rolePermissionService: rolePermissionService,
-	}
+func NewAuthService(authRepo repository.AuthRepository, roleRepo repository.RoleRepository,
+	auditRepo repository.AuditRepository, rolePermissionService RolePermissionService) AuthService {
+	return &authService{authRepo: authRepo, roleRepo: roleRepo,
+		auditRepo: auditRepo, rolePermissionService: rolePermissionService}
 }
 
 func (s *authService) Login(req *dto.LoginRequest, jwtSecret string, jwtExpiry time.Duration,) (*dto.LoginResponse, error) {
-	user, err := s.authRepo.GetUserByUsername(
-		req.Username,
-	)
+	user, err := s.authRepo.GetUserByUsername(req.Username)
 	if err != nil {
 		return nil, err
 	}
 	if !utils.CheckPassword(user.PasswordHash, req.Password,) {
-		return nil, errors.New(
-			"invalid username or password",
-		)
+		return nil, errors.New("invalid username or password")
 	}
 	if user.Status == constants.UserStatusLocked {
-		return nil, errors.New(
-			"user account is locked",
-		)
+		return nil, errors.New("user account is locked")
 	}
 
-	token, err := utils.GenerateToken(
-		user.ID,
-		user.TenantID,
-		user.Username,
-		user.RoleID,
-		jwtSecret,
-		jwtExpiry,
-	)
+	token, err := utils.GenerateToken(user.ID, user.TenantID, user.Username, user.RoleID, jwtSecret, jwtExpiry,)
 	if err != nil {
 		return nil, err
 	}
@@ -95,44 +74,27 @@ func (s *authService) Login(req *dto.LoginRequest, jwtSecret string, jwtExpiry t
         ),
     }
     _ = s.auditRepo.Create(audit)
-
 	return &dto.LoginResponse{
 		AccessToken: token,
 		TokenType:   "Bearer",
 		ExpiresIn:   int64(jwtExpiry.Seconds()),
-
 		UserID:   user.ID,
 		Username: user.Username,
 		RoleID:   user.RoleID,
 		Permissions: permissions,
-
 		MustChangePassword: user.MustChangePassword,
 	}, nil
 }
 
-func (s *authService) LoadAuthorizationData(
-	userID string,
-	roleID string,
-) (
-	[]model.RolePermission,
-	[]model.UserPermissionOverride,
-	error,
-) {
-
-	rolePermissions, err := s.authRepo.GetRolePermissions(
-		roleID,
-	)
+func (s *authService) LoadAuthorizationData(userID string, roleID string,) ([]model.RolePermission, []model.UserPermissionOverride, error,) {
+	rolePermissions, err := s.authRepo.GetRolePermissions(roleID)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	userOverrides, err := s.authRepo.GetUserPermissionOverrides(
-		userID,
-	)
+	userOverrides, err := s.authRepo.GetUserPermissionOverrides(userID)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	return rolePermissions, userOverrides, nil
 }
 

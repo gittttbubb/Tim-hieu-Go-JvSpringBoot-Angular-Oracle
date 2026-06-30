@@ -25,11 +25,8 @@ type passwordResetService struct {
 	auditRepo repository.AuditRepository
 }
 
-func NewPasswordResetService(
-	userRepo repository.UserRepository,
-	passwordResetRepo repository.PasswordResetRepository,
-	auditRepo repository.AuditRepository,
-) PasswordResetService {
+func NewPasswordResetService(userRepo repository.UserRepository, passwordResetRepo repository.PasswordResetRepository,
+	auditRepo repository.AuditRepository) PasswordResetService {
 	return &passwordResetService{
 		userRepo:          userRepo,
 		passwordResetRepo: passwordResetRepo,
@@ -37,17 +34,9 @@ func NewPasswordResetService(
 	}
 }
 
-func hashToken(
-	token string,
-) string {
-
-	hash := sha256.Sum256(
-		[]byte(token),
-	)
-
-	return hex.EncodeToString(
-		hash[:],
-	)
+func hashToken(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(hash[:])
 }
 
 func (s *passwordResetService) ForgotPassword(req *dto.ForgotPasswordRequest, ipAddress *string, userAgent *string,) (string, error) {

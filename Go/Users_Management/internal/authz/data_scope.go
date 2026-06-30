@@ -5,11 +5,7 @@ import "go-rbac-system/internal/constants"
 type dataScopeResolver struct{}
 
 type DataScopeResolver interface {
-	IsAllowed(
-		scope string,
-		isOwner bool,
-		isSameTeam bool,
-	) bool
+	IsAllowed(scope string, isOwner bool, isSameTeam bool,) bool
 }
 
 func NewDataScopeResolver() DataScopeResolver {

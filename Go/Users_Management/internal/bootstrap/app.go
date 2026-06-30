@@ -8,7 +8,6 @@ import (
 )
 
 func NewApp() *fiber.App {
-
 	app := fiber.New(fiber.Config{
 		AppName: "go-rbac-system",
 	})
@@ -24,7 +23,6 @@ func NewApp() *fiber.App {
 			"status": "UP",
 		})
 	})
-
 	return app
 }
 
@@ -35,7 +33,6 @@ func BuildRouteConfig(c *Container) routes.RouteConfig {
 		RoleHandler:       c.RoleHandler,
 		PermissionHandler: c.PermissionHandler,
 		AuditHandler:      c.AuditHandler,
-
 		AuthMiddleware:       c.AuthMiddleware,
 		PermissionMiddleware: c.PermissionMiddleware,
 	}

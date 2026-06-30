@@ -18,11 +18,7 @@ type AuthHandler struct {
 	cfg         *config.Config
 }
 
-func NewAuthHandler(
-	authService service.AuthService,
-	passwordResetService service.PasswordResetService,
-	cfg *config.Config,
-) *AuthHandler {
+func NewAuthHandler(authService service.AuthService, passwordResetService service.PasswordResetService, cfg *config.Config) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
 		passwordResetService: passwordResetService,
@@ -34,15 +30,12 @@ func (h *AuthHandler) validateStruct(s interface{}) error {
 }
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req dto.LoginRequest
-
 	if err := c.BodyParser(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, "invalid request body")
 	}
-
 	if err := h.validateStruct(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	res, err := h.authService.Login(
 		&req,
 		h.cfg.JWT.Secret,
@@ -51,54 +44,36 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, fiber.StatusUnauthorized, err.Error())
 	}
-
 	return response.Success(c, res)
 }
 
 func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 	var req dto.ChangePasswordRequest
-
 	if err := c.BodyParser(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, "invalid request body")
 	}
-
 	userID := c.Locals(constants.ContextUserID)
 	if userID == nil {
 		return response.Error(c, fiber.StatusUnauthorized, "unauthorized")
 	}
-
-	err := h.passwordResetService.ChangePassword(
-		userID.(string),
-		&req,
-	)
+	err := h.passwordResetService.ChangePassword(userID.(string), &req,)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
-	return response.Success(c, fiber.Map{
-		"message": "password changed successfully",
-	})
+	return response.Success(c, fiber.Map{"message": "password changed successfully",})
 }
 
 func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 	var req dto.ForgotPasswordRequest
-
 	if err := c.BodyParser(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, "invalid request body")
 	}
-
 	ip := c.IP()
 	ua := c.Get("User-Agent")
-
-	token, err := h.passwordResetService.ForgotPassword(
-		&req,
-		&ip,
-		&ua,
-	)
+	token, err := h.passwordResetService.ForgotPassword(&req, &ip, &ua)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	// production: không trả token ra ngoài
 	return response.Success(c, fiber.Map{
 		"message": "reset token generated",
@@ -109,12 +84,10 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 func (h *AuthHandler) AdminResetPassword(c *fiber.Ctx) error {
     userID := c.Params("id")
     adminID := c.Locals(constants.ContextUserID).(string)
-
     tempPassword, err := h.passwordResetService.AdminResetPassword(userID, adminID)
     if err != nil {
         return response.Error(c, fiber.StatusBadRequest, err.Error())
     }
-
     return response.Success(c, fiber.Map{
         "message": "password reset successfully",
         "temporaryPassword": tempPassword,

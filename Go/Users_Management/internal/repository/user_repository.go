@@ -196,24 +196,9 @@ func (r *userRepository) UpdateMustChangePassword(userID string, value bool) err
 	return err
 }
 
-func (r *userRepository) UpdateRole(
-    userID string,
-    roleID string,
-) error {
-
-    query := `
-        UPDATE users
-        SET role_id = :1,
-            updated_at = :2
-        WHERE id = :3
-    `
-
-    _, err := r.db.Exec(
-        query,
-        roleID,
-        time.Now(),
-        userID,
+func (r *userRepository) UpdateRole(userID string, roleID string,) error {
+    query := `UPDATE users SET role_id = :1, updated_at = :2 WHERE id = :3`
+    _, err := r.db.Exec(query, roleID, time.Now(), userID,
     )
-
     return err
 }

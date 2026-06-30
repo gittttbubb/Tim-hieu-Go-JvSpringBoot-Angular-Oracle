@@ -18,12 +18,9 @@ type UserHandler struct {
 	overrideService service.UserPermissionOverrideService
 }
 
-func NewUserHandler(
-	userService service.UserService,
-	overrideService service.UserPermissionOverrideService,
-) *UserHandler {
+func NewUserHandler(userService service.UserService, overrideService service.UserPermissionOverrideService,) *UserHandler {
 	return &UserHandler{
-		userService:     userService,
+		userService: userService,
 		overrideService: overrideService,
 	}
 }
@@ -54,10 +51,7 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
 	createdBy := c.Locals(constants.ContextUserID).(string)
-	tempPassword, err := h.userService.Create(
-		&req,
-		createdBy,
-	)
+	tempPassword, err := h.userService.Create(&req, createdBy)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
@@ -69,13 +63,10 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 
 func (h *UserHandler) Update(c *fiber.Ctx) error {
 	id := c.Params("id")
-
 	var req dto.UpdateUserRequest
-
 	if err := c.BodyParser(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	if err := validator.Validate.Struct(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
@@ -84,7 +75,6 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	return response.Success(c, fiber.Map{
 		"message": "user updated successfully",
 	})
@@ -92,12 +82,10 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 
 func (h *UserHandler) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
-
 	err := h.userService.Delete(id)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	return response.Success(c, fiber.Map{
 		"message": "user deleted successfully",
 	})
@@ -149,33 +137,26 @@ func (h *UserHandler) Unlock(c *fiber.Ctx) error {
 
 func (h *UserHandler) GetOverrides(c *fiber.Ctx) error {
 	userID := c.Params("id")
-
 	data, err := h.overrideService.GetByUserID(userID)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	return response.Success(c, data)
 }
 
 func (h *UserHandler) AssignOverride(c *fiber.Ctx) error {
 	var req dto.UserPermissionOverrideRequest
-
 	if err := c.BodyParser(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	if err := validator.Validate.Struct(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	createdBy := c.Locals(constants.ContextUserID).(string)
-
 	err := h.overrideService.Assign(&req, createdBy)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-
 	return response.Success(c, fiber.Map{
 		"message": "permission override assigned",
 	})
@@ -183,7 +164,6 @@ func (h *UserHandler) AssignOverride(c *fiber.Ctx) error {
 
 func (h *UserHandler) RemoveOverride(c *fiber.Ctx) error {
     id := c.Params("id")
-
     err := h.overrideService.Delete(id)
     if err != nil {
         return response.Error(
@@ -192,7 +172,6 @@ func (h *UserHandler) RemoveOverride(c *fiber.Ctx) error {
             err.Error(),
         )
     }
-
     return response.Success(c, fiber.Map{
         "message": "permission override removed",
     })
@@ -200,26 +179,20 @@ func (h *UserHandler) RemoveOverride(c *fiber.Ctx) error {
 
 func (h *UserHandler) UpdateRole(c *fiber.Ctx) error {
     userID := c.Params("id")
-
     var req dto.UpdateUserRoleRequest
-
     if err := c.BodyParser(&req); err != nil {
         return response.Error(c, fiber.StatusBadRequest, err.Error())
     }
-
     if err := validator.Validate.Struct(&req); err != nil {
         return response.Error(c, fiber.StatusBadRequest, err.Error())
     }
-
     err := h.userService.UpdateRole(
         userID,
         req.RoleID,
     )
-
     if err != nil {
         return response.Error(c, fiber.StatusBadRequest, err.Error())
     }
-
     return response.Success(c, fiber.Map{
         "message": "user role updated successfully",
     })

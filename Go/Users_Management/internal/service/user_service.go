@@ -30,11 +30,8 @@ type userService struct {
 	auditRepo repository.AuditRepository
 }
 
-func NewUserService(
-	userRepo repository.UserRepository,
-	roleRepo repository.RoleRepository,
-	auditRepo repository.AuditRepository,
-) UserService {
+func NewUserService(userRepo repository.UserRepository, roleRepo repository.RoleRepository,
+	auditRepo repository.AuditRepository) UserService {
 	return &userService{
 		userRepo: userRepo,
 		roleRepo: roleRepo,
@@ -42,10 +39,7 @@ func NewUserService(
 	}
 }
 
-func mapUserListResponse(
-	user *model.User,
-) dto.UserListResponse {
-
+func mapUserListResponse(user *model.User,) dto.UserListResponse {
 	return dto.UserListResponse{
 		ID:                 user.ID,
 		TenantID:           user.TenantID,
@@ -59,10 +53,7 @@ func mapUserListResponse(
 	}
 }
 
-func mapUserDetailResponse(
-	user *model.User,
-) *dto.UserDetailResponse {
-
+func mapUserDetailResponse(user *model.User) *dto.UserDetailResponse {
 	response := &dto.UserDetailResponse{
 		ID:                 user.ID,
 		TenantID:           user.TenantID,
@@ -74,45 +65,31 @@ func mapUserDetailResponse(
 		Status:             user.Status,
 		MustChangePassword: user.MustChangePassword,
 	}
-
 	response.CreatedAt = user.CreatedAt.Format(time.RFC3339)
 	response.UpdatedAt = user.UpdatedAt.Format(time.RFC3339)
-
 	return response
 }
 
-func (s *userService) GetByID(
-	id string,
-) (*dto.UserDetailResponse, error) {
-
+func (s *userService) GetByID(id string) (*dto.UserDetailResponse, error) {
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
-
 	return mapUserDetailResponse(user), nil
 }
 
 func (s *userService) List() ([]dto.UserListResponse, error) {
-
 	users, err := s.userRepo.List()
 	if err != nil {
 		return nil, err
 	}
-
-	result := make(
-		[]dto.UserListResponse,
-		0,
-		len(users),
-	)
-
+	result := make([]dto.UserListResponse, 0, len(users))
 	for _, user := range users {
 		result = append(
 			result,
 			mapUserListResponse(&user),
 		)
 	}
-
 	return result, nil
 }
 
@@ -124,7 +101,6 @@ func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (str
 	if !errors.Is(err, sql.ErrNoRows) {
 		return "", err
 	}
-	
 	_, err = s.userRepo.GetByEmail(req.Email)
 	if err == nil {
 		return "", errors.New("email already exists")
@@ -132,7 +108,6 @@ func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (str
 	if !errors.Is(err, sql.ErrNoRows) {
 		return "", err
 	}
-
 	_, err = s.roleRepo.GetByID(req.RoleID)
 	if err != nil {
 		return "", err
@@ -184,7 +159,6 @@ func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (str
 		),
 	}
 	_ = s.auditRepo.Create(audit)
-
 	return tempPassword, nil
 }
 

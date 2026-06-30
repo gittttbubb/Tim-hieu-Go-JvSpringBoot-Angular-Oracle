@@ -19,9 +19,7 @@ type authMiddleware struct {
 	cfg *config.Config
 }
 
-func NewAuthMiddleware(
-	cfg *config.Config,
-) AuthMiddleware {
+func NewAuthMiddleware(cfg *config.Config,) AuthMiddleware {
 	return &authMiddleware{
 		cfg: cfg,
 	}

@@ -16,16 +16,8 @@ type AuditRepository interface {
 	ListByActorID(actorID string) ([]model.AuditLog, error)
 	ListByEntity(entityType string, entityID string) ([]model.AuditLog, error)
 	ListByTenant(tenantID string) ([]model.AuditLog, error)
-	ListWithFilter(
-		tenantID string,
-		actorID string,
-		entityType string,
-		entityID string,
-		from time.Time,
-		to time.Time,
-		limit int,
-		offset int,
-	) ([]model.AuditLog, error)
+	ListWithFilter(tenantID string, actorID string, entityType string, entityID string, from time.Time, to time.Time, limit int,
+		offset int) ([]model.AuditLog, error)
 }
 
 type auditRepository struct {
@@ -123,7 +115,7 @@ func (r *auditRepository) GetAll() ([]model.AuditLog, error) {
 func (r *auditRepository) ListByActorID(actorID string) ([]model.AuditLog, error) {
 	query := `SELECT id, tenant_id, actor, actor_id, action, entity_type, entity_id, before_data, after_data, ip_address,
 			event_timestamp, reason, event_type, actor_identifier, target_user_id, metadata
-		FROM audit_logs WHERE actor_id = :1 ORDER BY event_timestamp DESC, id DESC`
+			FROM audit_logs WHERE actor_id = :1 ORDER BY event_timestamp DESC, id DESC`
 	rows, err := r.db.Query(query, actorID)
 	if err != nil {
 		return nil, err
@@ -143,7 +135,7 @@ func (r *auditRepository) ListByActorID(actorID string) ([]model.AuditLog, error
 func (r *auditRepository) ListByEntity(entityType string, entityID string) ([]model.AuditLog, error) {
 	query := `SELECT id, tenant_id, actor, actor_id, action, entity_type, entity_id, before_data, after_data, ip_address,
 			event_timestamp, reason, event_type, actor_identifier, 	target_user_id, metadata
-		FROM audit_logs WHERE entity_type = :1 AND entity_id = :2 ORDER BY event_timestamp DESC`
+			FROM audit_logs WHERE entity_type = :1 AND entity_id = :2 ORDER BY event_timestamp DESC`
 	rows, err := r.db.Query(query, entityType, entityID)
 	if err != nil {
 		return nil, err
@@ -163,7 +155,7 @@ func (r *auditRepository) ListByEntity(entityType string, entityID string) ([]mo
 func (r *auditRepository) ListByTenant(tenantID string) ([]model.AuditLog, error) {
 	query := `SELECT id, tenant_id, actor, actor_id, action, entity_type, entity_id, before_data, after_data, ip_address,
 			event_timestamp, reason, event_type, actor_identifier, target_user_id, metadata
-		FROM audit_logs WHERE tenant_id = :1 ORDER BY event_timestamp DESC`
+			FROM audit_logs WHERE tenant_id = :1 ORDER BY event_timestamp DESC`
 	rows, err := r.db.Query(query, tenantID)
 	if err != nil {
 		return nil, err
@@ -180,17 +172,8 @@ func (r *auditRepository) ListByTenant(tenantID string) ([]model.AuditLog, error
 	return result, rows.Err()
 }
 
-func (r *auditRepository) ListWithFilter(
-	tenantID string,
-	actorID string,
-	entityType string,
-	entityID string,
-	from time.Time,
-	to time.Time,
-	limit int,
-	offset int,
-) ([]model.AuditLog, error) {
-
+func (r *auditRepository) ListWithFilter(tenantID string, actorID string, entityType string, entityID string,
+	from time.Time, to time.Time, limit int, offset int) ([]model.AuditLog, error) {
 	query := `
 		SELECT id, tenant_id, actor, actor_id, action, entity_type, entity_id,
 		       before_data, after_data, ip_address, event_timestamp, reason,
@@ -201,7 +184,6 @@ func (r *auditRepository) ListWithFilter(
 
 	args := []interface{}{tenantID}
 	idx := 2
-
 	if actorID != "" {
 		query += " AND actor_id = :" + strconv.Itoa(idx)
 		args = append(args, actorID)
@@ -213,27 +195,22 @@ func (r *auditRepository) ListWithFilter(
 		args = append(args, entityType)
 		idx++
 	}
-
 	if entityID != "" {
 		query += " AND entity_id = :" + strconv.Itoa(idx)
 		args = append(args, entityID)
 		idx++
 	}
-
 	if !from.IsZero() {
 		query += " AND event_timestamp >= :" + strconv.Itoa(idx)
 		args = append(args, from)
 		idx++
 	}
-
 	if !to.IsZero() {
 		query += " AND event_timestamp <= :" + strconv.Itoa(idx)
 		args = append(args, to)
 		idx++
 	}
-
 	query += " ORDER BY event_timestamp DESC"
-
 	// Oracle pagination chuẩn
 	if limit > 0 {
 		query += fmt.Sprintf(
@@ -242,15 +219,12 @@ func (r *auditRepository) ListWithFilter(
 			limit,
 		)
 	}
-
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
 	result := make([]model.AuditLog, 0)
-
 	for rows.Next() {
 		item, err := scanAuditLog(rows)
 		if err != nil {
@@ -258,6 +232,5 @@ func (r *auditRepository) ListWithFilter(
 		}
 		result = append(result, *item)
 	}
-
 	return result, rows.Err()
 }

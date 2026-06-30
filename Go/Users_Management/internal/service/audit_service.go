@@ -58,23 +58,14 @@ func (s *auditService) GetAll() ([]model.AuditLog, error) {
 	return s.auditRepo.GetAll()
 }
 
-func (s *auditService) ListByActorID(
-	actorID string,
-) ([]model.AuditLog, error) {
-
+func (s *auditService) ListByActorID(actorID string,) ([]model.AuditLog, error) {
 	return s.auditRepo.ListByActorID(actorID)
 }
 
-func (s *auditService) ListByEntity(
-	entityType string,
-	entityID string,
-) ([]model.AuditLog, error) {
-
-	return s.auditRepo.ListByEntity(
-		entityType,
-		entityID,
-	)
+func (s *auditService) ListByEntity(entityType string,entityID string) ([]model.AuditLog, error) {
+	return s.auditRepo.ListByEntity(entityType, entityID)
 }
+
 func normalizeAction(action string) string {
 	switch action {
 	case "login":
@@ -89,34 +80,11 @@ func normalizeAction(action string) string {
 		return action
 	}
 }
-func (s *auditService) ListByTenant(
-	tenantID string,
-) ([]model.AuditLog, error) {
-
-	return s.auditRepo.ListByTenant(
-		tenantID,
-	)
+func (s *auditService) ListByTenant(tenantID string,) ([]model.AuditLog, error) {
+	return s.auditRepo.ListByTenant(tenantID)
 }
 
-func (s *auditService) ListWithFilter(
-	tenantID string,
-	actorID string,
-	entityType string,
-	entityID string,
-	from time.Time,
-	to time.Time,
-	limit int,
-	offset int,
-) ([]model.AuditLog, error) {
-
-	return s.auditRepo.ListWithFilter(
-		tenantID,
-		actorID,
-		entityType,
-		entityID,
-		from,
-		to,
-		limit,
-		offset,
-	)
+func (s *auditService) ListWithFilter(tenantID string, actorID string, entityType string, entityID string, from time.Time, to time.Time,
+	limit int,offset int) ([]model.AuditLog, error) {
+	return s.auditRepo.ListWithFilter(tenantID, actorID, entityType, entityID, from, to, limit, offset)
 }
