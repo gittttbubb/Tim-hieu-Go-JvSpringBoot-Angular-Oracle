@@ -301,7 +301,7 @@ export class UserFormComponent implements OnInit {
     }
     this.confirmationService.confirm({
       header: 'Reset Password',
-      message: 'A temporary password will be generated. Continue?',
+      message: 'Mật khẩu tạm thời sẽ được tạo. Tiếp tục?',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.authService.resetPassword(this.userId!)

@@ -83,8 +83,9 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 
 func (h *AuthHandler) AdminResetPassword(c *fiber.Ctx) error {
     userID := c.Params("id")
-    adminID := c.Locals(constants.ContextUserID).(string)
-    tempPassword, err := h.passwordResetService.AdminResetPassword(userID, adminID)
+    actorID := c.Locals(constants.ContextUserID).(string)
+	actor := c.Locals(constants.ContextUsername).(string)
+    tempPassword, err := h.passwordResetService.AdminResetPassword(userID, actorID, actor)
     if err != nil {
         return response.Error(c, fiber.StatusBadRequest, err.Error())
     }

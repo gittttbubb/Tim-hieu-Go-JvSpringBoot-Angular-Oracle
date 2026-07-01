@@ -14,6 +14,7 @@ import (
 
 type PermissionMiddleware interface {
 	Require(permissionCode string) fiber.Handler
+	RequireAny(permissionCodes ...string) fiber.Handler
 }
 
 type permissionMiddleware struct {
@@ -93,7 +94,63 @@ func (m *permissionMiddleware) Require(permissionCode string) fiber.Handler {
 		return c.Next()
 	}
 }
-
+func (m *permissionMiddleware) RequireAny(permissionCodes ...string) fiber.Handler {
+    return func(c *fiber.Ctx) error {
+        claimsValue := c.Locals(constants.ContextClaims)
+        if claimsValue == nil {
+            return response.Error(
+                c,
+                fiber.StatusUnauthorized,
+                "unauthorized",
+            )
+        }
+        claims, ok := claimsValue.(*utils.Claims)
+        if !ok {
+            return response.Error(
+                c,
+                fiber.StatusUnauthorized,
+                "invalid auth context",
+            )
+        }
+        rolePermissions, userOverrides, err := m.authService.LoadAuthorizationData(
+            claims.UserID,
+            claims.RoleID,
+        )
+        if err != nil {
+            return response.Error(
+                c,
+                fiber.StatusInternalServerError,
+                "failed to load authorization data",
+            )
+        }
+        permissions, err := m.permissionRepo.List()
+        if err != nil {
+            return response.Error(
+                c,
+                fiber.StatusInternalServerError,
+                "failed to load permissions",
+            )
+        }
+        permissionCodeMap := buildPermissionCodeMap(permissions)
+        grants := buildPermissionGrants(
+            rolePermissions,
+            userOverrides,
+            permissionCodeMap,
+        )
+        resolver := authz.NewPermissionResolver(grants)
+        for _, code := range permissionCodes {
+            if resolver.HasPermission(code) {
+                c.Locals(constants.ContextPermissionGrants, grants)
+                return c.Next()
+            }
+        }
+        return response.Error(
+            c,
+            fiber.StatusForbidden,
+            "permission denied",
+        )
+    }
+}
 // Helpers
 // tạo map[string]string. Kết quả VD:{
 //     "p1": "USER_VIEW",

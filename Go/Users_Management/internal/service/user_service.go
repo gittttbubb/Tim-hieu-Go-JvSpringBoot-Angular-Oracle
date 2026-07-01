@@ -16,12 +16,12 @@ import (
 type UserService interface {
 	GetByID(id string,) (*dto.UserDetailResponse, error)
 	List() ([]dto.UserListResponse, error)
-	Create(req *dto.CreateUserRequest, createdBy string,) (string, error)
-	Update(id string, req *dto.UpdateUserRequest,) error
-	Delete(id string,) error
-	LockUser(id string) error
-	UnlockUser(id string) error
-	UpdateRole(userID string, roleID string,) error
+	Create(req *dto.CreateUserRequest, actorID string, actor string,) (string, error)
+	Update(id string, req *dto.UpdateUserRequest,actorID string, actor string,) error
+	Delete(id string,actorID string, actor string,) error
+	LockUser(id string,actorID string, actor string,) error
+	UnlockUser(id string,actorID string, actor string,) error
+	UpdateRole(userID string, roleID string,actorID string, actor string,) error
 }
 
 type userService struct {
@@ -93,7 +93,7 @@ func (s *userService) List() ([]dto.UserListResponse, error) {
 	return result, nil
 }
 
-func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (string, error) {
+func (s *userService) Create(req *dto.CreateUserRequest, actorID string, actor string,) (string, error) {
 	_, err := s.userRepo.GetByUsername(req.Username)
 	if err == nil {
 		return "", errors.New("username already exists")
@@ -118,7 +118,6 @@ func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (str
 		return "", err
 	}
 	now := time.Now()
-	createdByValue := createdBy
 	user := &model.User{
 		ID:                 utils.NewUUID(),
 		TenantID:           req.TenantID,
@@ -132,7 +131,7 @@ func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (str
 		MustChangePassword: true,
 		CreatedAt:          now,
 		UpdatedAt:          now,
-		CreatedBy:          &createdByValue,
+		CreatedBy:          &actorID,
 		PasswordChangedAt:  now,
 	}
 	err = s.userRepo.Create(user)
@@ -142,11 +141,12 @@ func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (str
 	audit := &model.AuditLog{
 		ID:             utils.NewUUID(),
 		TenantID:       user.TenantID,
+		Actor:          actor,
+    	ActorID:        &actorID,
 		Action:         "USER_CREATE",
 		EntityType:     "USER",
 		EntityID:       user.ID,
 		TargetUserID:   &user.ID,
-		ActorID:        user.CreatedBy,
 		EventTimestamp: time.Now(),
 		AfterData: utils.StringPtr(
 			fmt.Sprintf(
@@ -158,11 +158,15 @@ func (s *userService) Create(req *dto.CreateUserRequest, createdBy string,) (str
 			),
 		),
 	}
-	_ = s.auditRepo.Create(audit)
+	// _ = s.auditRepo.Create(audit)
+	err = s.auditRepo.Create(audit)
+	if err != nil {
+		fmt.Println("AUDIT ERROR:", err)
+	}
 	return tempPassword, nil
 }
 
-func (s *userService) Update(id string, req *dto.UpdateUserRequest,) error {
+func (s *userService) Update(id string, req *dto.UpdateUserRequest, actorID string, actor string,) error {
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return err
@@ -202,6 +206,8 @@ func (s *userService) Update(id string, req *dto.UpdateUserRequest,) error {
 	audit := &model.AuditLog{
 		ID:             utils.NewUUID(),
 		TenantID:       user.TenantID,
+		Actor:          actor,
+		ActorID:        &actorID,
 		TargetUserID:   &user.ID,
 		Action:         "USER_UPDATE",
 		EntityType:     "USER",
@@ -210,12 +216,16 @@ func (s *userService) Update(id string, req *dto.UpdateUserRequest,) error {
 		AfterData:      &after,
 		EventTimestamp: time.Now(),
 	}
-	_ = s.auditRepo.Create(audit)
+	// _ = s.auditRepo.Create(audit)
+	err = s.auditRepo.Create(audit)
+	if err != nil {
+		fmt.Println("AUDIT ERROR:", err)
+	}
 
 	return nil
 }
 
-func (s *userService) Delete(id string,) error {
+func (s *userService) Delete(id string, actorID string, actor string,) error {
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return err
@@ -230,6 +240,8 @@ func (s *userService) Delete(id string,) error {
 	audit := &model.AuditLog{
 		ID:             utils.NewUUID(),
 		TenantID:       user.TenantID,
+		Actor:          actor,
+		ActorID:        &actorID,
 		TargetUserID:   &user.ID,
 		Action:         "USER_DELETE",
 		EntityType:     "USER",
@@ -237,12 +249,16 @@ func (s *userService) Delete(id string,) error {
 		BeforeData:     &before,
 		EventTimestamp: time.Now(),
 	}
-	_ = s.auditRepo.Create(audit)
+	// _ = s.auditRepo.Create(audit)
+	err = s.auditRepo.Create(audit)
+	if err != nil {
+		fmt.Println("AUDIT ERROR:", err)
+	}
 
 	return nil
 }
 
-func (s *userService) LockUser(id string) error {
+func (s *userService) LockUser(id string, actorID string, actor string,) error {
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return err
@@ -257,6 +273,8 @@ func (s *userService) LockUser(id string) error {
 	audit := &model.AuditLog{
 		ID:             utils.NewUUID(),
 		TenantID:       user.TenantID,
+		Actor:          actor,
+		ActorID:        &actorID,
 		TargetUserID:   &user.ID,
 		Action:         "USER_LOCK",
 		EntityType:     "USER",
@@ -264,12 +282,16 @@ func (s *userService) LockUser(id string) error {
 		Reason:         utils.StringPtr("manual lock"),
 		EventTimestamp: time.Now(),
 	}
-	_ = s.auditRepo.Create(audit)
+	// _ = s.auditRepo.Create(audit)
+	err = s.auditRepo.Create(audit)
+	if err != nil {
+		fmt.Println("AUDIT ERROR:", err)
+	}
 
 	return nil
 }
 
-func (s *userService) UnlockUser(id string) error {
+func (s *userService) UnlockUser(id string, actorID string, actor string,) error {
     user, err := s.userRepo.GetByID(id)
     if err != nil {
         return err
@@ -289,18 +311,24 @@ func (s *userService) UnlockUser(id string) error {
     audit := &model.AuditLog{
         ID:             utils.NewUUID(),
         TenantID:       user.TenantID,
+		Actor:          actor,
+		ActorID:        &actorID,
         TargetUserID:   &user.ID,
         Action:         "USER_UNLOCK",
         EntityType:     "USER",
         EntityID:       user.ID,
         EventTimestamp: time.Now(),
     }
-    _ = s.auditRepo.Create(audit)
+    // _ = s.auditRepo.Create(audit)
+	err = s.auditRepo.Create(audit)
+	if err != nil {
+		fmt.Println("AUDIT ERROR:", err)
+	}
 
     return nil
 }
 
-func (s *userService) UpdateRole(userID string, roleID string,) error {
+func (s *userService) UpdateRole(userID string, roleID string, actorID string, actor string,) error {
 	// kiểm tra user tồn tại
 	user, err := s.userRepo.GetByID(userID)
 	if err != nil {
@@ -328,6 +356,8 @@ func (s *userService) UpdateRole(userID string, roleID string,) error {
 	audit := &model.AuditLog{
 		ID:             utils.NewUUID(),
 		TenantID:       user.TenantID,
+		Actor:          actor,
+		ActorID:        &actorID,
 		TargetUserID:   &user.ID,
 		Action:         "USER_ROLE_CHANGE",
 		EntityType:     "USER",
@@ -336,7 +366,11 @@ func (s *userService) UpdateRole(userID string, roleID string,) error {
 		AfterData:      utils.StringPtr(roleID),
 		EventTimestamp: time.Now(),
 	}
-	_ = s.auditRepo.Create(audit)
+	// _ = s.auditRepo.Create(audit)
+	err = s.auditRepo.Create(audit)
+	if err != nil {
+		fmt.Println("AUDIT ERROR:", err)
+	}
 
 	return nil
 }

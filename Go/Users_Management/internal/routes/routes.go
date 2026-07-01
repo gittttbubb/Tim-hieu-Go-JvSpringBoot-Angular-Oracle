@@ -59,7 +59,7 @@ func UserRoutes(api fiber.Router, cfg RouteConfig) {
 // ROLE
 func RoleRoutes(api fiber.Router, cfg RouteConfig) {
 	roles := api.Group("/roles", cfg.AuthMiddleware.RequireAuth())
-	roles.Get("/", cfg.PermissionMiddleware.Require("ROLE_VIEW"), cfg.RoleHandler.List)
+	roles.Get("/", cfg.PermissionMiddleware.RequireAny("ROLE_VIEW", "USER_VIEW"), cfg.RoleHandler.List)
 	roles.Get("/:id", cfg.PermissionMiddleware.Require("ROLE_VIEW"), cfg.RoleHandler.GetByID)
 	roles.Post("/create", cfg.PermissionMiddleware.Require("ROLE_CREATE"), cfg.RoleHandler.Create)
 	roles.Put("/:id", cfg.PermissionMiddleware.Require("ROLE_UPDATE"), cfg.RoleHandler.Update)

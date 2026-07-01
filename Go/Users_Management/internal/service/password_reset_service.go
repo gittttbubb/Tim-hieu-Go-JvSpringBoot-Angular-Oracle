@@ -15,7 +15,7 @@ import (
 
 type PasswordResetService interface {
 	ForgotPassword(req *dto.ForgotPasswordRequest, ipAddress *string, userAgent *string,) (string, error)
-	AdminResetPassword(userID string, adminID string) (string, error)
+	AdminResetPassword(userID string, actorID string, actor string,) (string, error)
 	ChangePassword(userID string, req *dto.ChangePasswordRequest,) error
 }
 
@@ -76,7 +76,7 @@ func (s *passwordResetService) ForgotPassword(req *dto.ForgotPasswordRequest, ip
     return "", nil
 }
 
-func (s *passwordResetService) AdminResetPassword(userID string, adminID string) (string, error) {
+func (s *passwordResetService) AdminResetPassword(userID string, actorID string, actor string,) (string, error) {
     user, err := s.userRepo.GetByID(userID)
     if err != nil {
         return "", err
@@ -104,7 +104,8 @@ func (s *passwordResetService) AdminResetPassword(userID string, adminID string)
 	audit := &model.AuditLog{
 		ID:             utils.NewUUID(),
 		TenantID:       user.TenantID,
-		ActorID:        &adminID,
+        Actor:          actor,
+		ActorID:        &actorID,
 		TargetUserID:   &user.ID,
 		Action:         "ADMIN_RESET_PASSWORD",
 		EntityType:     "USER",
@@ -146,18 +147,6 @@ func (s *passwordResetService) ChangePassword(userID string, req *dto.ChangePass
     if user.MustChangePassword {
         _ = s.userRepo.UpdateMustChangePassword(user.ID, false)
     }
-
-	audit := &model.AuditLog{
-		ID:             utils.NewUUID(),
-		TenantID:       user.TenantID,
-		ActorID:        &user.ID,
-		TargetUserID:   &user.ID,
-		Action:         "CHANGE_PASSWORD",
-		EntityType:     "USER",
-		EntityID:       user.ID,
-		EventTimestamp: time.Now(),
-	}
-	_ = s.auditRepo.Create(audit)
 
     return nil
 }

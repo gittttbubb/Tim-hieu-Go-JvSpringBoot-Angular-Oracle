@@ -19,7 +19,7 @@
             <button pButton icon="pi pi-arrow-left" label="Back" severity="secondary"
                 [routerLink]="['/users']"></button>
             <button pButton icon="pi pi-pencil" label="Edit" severity="info" (click)="goEdit()"></button>
-            <button pButton icon="pi pi-key" label="Permissions" severity="secondary"
+            <button pButton icon="pi pi-key" label="Permissions overrides" severity="secondary"
                 [routerLink]="['/users/overrides', userId]">
             </button>
             }
@@ -99,6 +99,8 @@
             </div>
         </form>
     </p-card>
+
+    <!--  -->
     <p-dialog header="Temporary Password" [(visible)]="showTempPasswordDialog" [modal]="true" [closable]="true"
         [draggable]="false" [resizable]="false" [style]="{ width: '500px' }">
         <div class="temp-password-container">

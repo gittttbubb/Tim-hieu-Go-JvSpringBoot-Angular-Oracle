@@ -126,11 +126,12 @@ func (r *userRepository) Update(user *model.User,) error {
 	if user.MustChangePassword {
 		mustChange = 1
 	}
-	query := `UPDATE users SET full_name = :1, email = :2, phone = :3, role_id = :4,
-			status = :5, must_change_password = :6, updated_at = :7 WHERE id = :8`
+	query := `UPDATE users SET full_name = :1, username = :2, email = :3, phone = :4, role_id = :5,
+			status = :6, must_change_password = :7, updated_at = :8 WHERE id = :9`
 	_, err := r.db.Exec(
 		query,
 		user.FullName,
+		user.Username,
 		user.Email,
 		user.Phone,
 		user.RoleID,

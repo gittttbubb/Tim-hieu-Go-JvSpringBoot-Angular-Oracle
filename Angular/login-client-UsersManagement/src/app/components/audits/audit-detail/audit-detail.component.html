@@ -1,121 +1,74 @@
 <div class="audit-detail-page">
-
     <div class="page-header">
-
         <div>
             <h2>Audit Detail</h2>
-
             <span class="subtitle">
                 Activity information
             </span>
         </div>
-
-        <button pButton icon="pi pi-arrow-left" label="Back" severity="secondary" [routerLink]="['/audits']">
-        </button>
-
+        <button pButton icon="pi pi-arrow-left" label="Back" severity="secondary" [routerLink]="['/audits']"></button>
     </div>
 
     @if (audit) {
-
     <p-card>
-
         <div class="detail-grid">
-
             <div class="item">
                 <label>Action</label>
-
-                <p-tag [value]="audit.action">
-                </p-tag>
+                <p-tag [value]="audit.action"></p-tag>
             </div>
-
             <div class="item">
                 <label>Actor</label>
                 <span>{{ audit.actor }}</span>
             </div>
-
             <div class="item">
                 <label>Actor Id</label>
                 <span>{{ audit.actorId || '-' }}</span>
             </div>
-
             <div class="item">
                 <label>Entity Type</label>
                 <span>{{ audit.entityType }}</span>
             </div>
-
             <div class="item">
                 <label>Entity Id</label>
                 <span>{{ audit.entityId }}</span>
             </div>
-
             <div class="item">
                 <label>Target User</label>
                 <span>{{ audit.targetUserId || '-' }}</span>
             </div>
-
             <div class="item">
                 <label>IP Address</label>
                 <span>{{ audit.ipAddress || '-' }}</span>
             </div>
-
             <div class="item">
                 <label>Timestamp</label>
                 <span>
                     {{ audit.eventTimestamp | date:'dd/MM/yyyy HH:mm:ss' }}
                 </span>
             </div>
-
             <div class="item full-row">
                 <label>Reason</label>
                 <span>{{ audit.reason || '-' }}</span>
             </div>
-
         </div>
 
-        @if (audit.beforeData) {
-
+        
         <div class="json-section">
-
             <h4>Before Data</h4>
-
-            <pre>
-{{ formatJson(audit.beforeData) }}
-            </pre>
-
+            <pre>{{ formatJson(audit.beforeData) }} </pre>
         </div>
-
-        }
-
-        @if (audit.afterData) {
-
+        
         <div class="json-section">
-
             <h4>After Data</h4>
-
-            <pre>
-{{ formatJson(audit.afterData) }}
-            </pre>
-
+            <pre>{{ formatJson(audit.afterData) }}</pre>
         </div>
-
-        }
 
         @if (audit.metadata) {
-
         <div class="json-section">
-
             <h4>Metadata</h4>
-
-            <pre>
-{{ formatJson(audit.metadata) }}
-            </pre>
-
+            <pre>{{ formatJson(audit.metadata) }}</pre>
         </div>
-
         }
-
     </p-card>
-
     }
-
 </div>

@@ -50,8 +50,14 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 	if err := validator.Validate.Struct(&req); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
-	createdBy := c.Locals(constants.ContextUserID).(string)
-	tempPassword, err := h.userService.Create(&req, createdBy)
+	actorID := c.Locals(constants.ContextUserID).(string)
+	actor := c.Locals(constants.ContextUsername).(string)
+
+	tempPassword, err := h.userService.Create(
+		&req,
+		actorID,
+		actor,
+	)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
@@ -71,7 +77,15 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
 
-	err := h.userService.Update(id, &req)
+	actorID := c.Locals(constants.ContextUserID).(string)
+	actor := c.Locals(constants.ContextUsername).(string)
+
+	err := h.userService.Update(
+		id,
+		&req,
+		actorID,
+		actor,
+	)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
@@ -82,7 +96,14 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 
 func (h *UserHandler) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
-	err := h.userService.Delete(id)
+	actorID := c.Locals(constants.ContextUserID).(string)
+	actor := c.Locals(constants.ContextUsername).(string)
+
+	err := h.userService.Delete(
+		id,
+		actorID,
+		actor,
+	)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
@@ -93,7 +114,14 @@ func (h *UserHandler) Delete(c *fiber.Ctx) error {
 
 func (h *UserHandler) Lock(c *fiber.Ctx) error {
 	id := c.Params("id")
-	err := h.userService.LockUser(id)
+	actorID := c.Locals(constants.ContextUserID).(string)
+	actor := c.Locals(constants.ContextUsername).(string)
+
+	err := h.userService.LockUser(
+		id,
+		actorID,
+		actor,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return response.Error(
@@ -115,8 +143,15 @@ func (h *UserHandler) Lock(c *fiber.Ctx) error {
 
 func (h *UserHandler) Unlock(c *fiber.Ctx) error {
 	id := c.Params("id")
-	err := h.userService.UnlockUser(id)
-	if err != nil {
+	actorID := c.Locals(constants.ContextUserID).(string)
+	actor := c.Locals(constants.ContextUsername).(string)
+
+	err := h.userService.UnlockUser(
+		id,
+		actorID,
+		actor,
+	)
+		if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return response.Error(
 				c,
@@ -186,10 +221,15 @@ func (h *UserHandler) UpdateRole(c *fiber.Ctx) error {
     if err := validator.Validate.Struct(&req); err != nil {
         return response.Error(c, fiber.StatusBadRequest, err.Error())
     }
-    err := h.userService.UpdateRole(
-        userID,
-        req.RoleID,
-    )
+    actorID := c.Locals(constants.ContextUserID).(string)
+	actor := c.Locals(constants.ContextUsername).(string)
+
+	err := h.userService.UpdateRole(
+		userID,
+		req.RoleID,
+		actorID,
+		actor,
+	)
     if err != nil {
         return response.Error(c, fiber.StatusBadRequest, err.Error())
     }
