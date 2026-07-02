@@ -45,7 +45,7 @@
                     <label>Phone</label>
                     <input pInputText formControlName="phone">
                 </div>
-                <div class="field">
+                <div class="field" *appHasPermission="permissions.ROLE_UPDATE">
                     <label>Role</label>
                     <p-select formControlName="roleId" [options]="roles" optionLabel="displayName" optionValue="id"
                         placeholder="Select Role">
@@ -101,11 +101,11 @@
     </p-card>
 
     <!--  -->
-    <p-dialog header="Temporary Password" [(visible)]="showTempPasswordDialog" [modal]="true" [closable]="true"
+    <p-dialog [header]="passwordDialogTitle" [(visible)]="showTempPasswordDialog" [modal]="true" [closable]="true"
         [draggable]="false" [resizable]="false" [style]="{ width: '500px' }">
         <div class="temp-password-container">
             <p class="password-description">
-                Temporary password generated successfully.
+                {{ passwordDialogMessage }}
             </p>
             <div class="password-box">
                 {{ tempPassword }}
@@ -116,7 +116,7 @@
             <div class="dialog-actions">
                 <button pButton type="button" icon="pi pi-copy" label="Copy Password" (click)="copyPassword()"></button>
                 <button pButton type="button" severity="secondary" label="Close"
-                    (click)="showTempPasswordDialog = false">
+                    (click)="closePasswordDialog()">
                 </button>
             </div>
         </div>

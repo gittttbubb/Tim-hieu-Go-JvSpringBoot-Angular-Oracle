@@ -8,8 +8,11 @@
                 {{ roleName }}
             </p>
         </div>
-        <button pButton icon="pi pi-plus" label="Add Override" (click)="openDialog()">
-        </button>
+        <div class="button-group">
+            <button pButton type="button" icon="pi pi-arrow-left" severity="secondary" label="Back"
+                [routerLink]="['/users', userId]" style="right: 10px;"></button>
+            <button pButton icon="pi pi-plus" label="Add Override" (click)="openDialog()"></button>
+        </div>
     </div>
 
     <p-table [value]="overrides" [loading]="loading">
@@ -52,7 +55,7 @@
             <label>
                 Permission
             </label>
-            <p-dropdown formControlName="permissionId" [options]="permissions" optionLabel="description"
+            <p-dropdown formControlName="permissionId" [options]="permissions" optionLabel="featureCode"
                 optionValue="id">
             </p-dropdown>
         </div>

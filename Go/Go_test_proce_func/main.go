@@ -143,18 +143,6 @@ func main() {
 	// -------------------------------------------------------------
 	fmt.Println("\n--- [4] Calling Function: get_total_users ---")
 	
-	// Cách A: Sử dụng SELECT ... FROM DUAL (cách tiếp cận SQL tiêu chuẩn cho các function)
-	{
-		var count int
-		query := "SELECT get_total_users() FROM dual"
-		err = db.QueryRowContext(runCtx, query).Scan(&count)
-		if err != nil {
-			log.Fatalf("Failed to call get_total_users via SELECT: %v\n", err)
-		}
-		fmt.Printf("Method A (SELECT FROM dual) - Total users: %d\n", count)
-	}
-
-	// Cách B: Sử dụng PL/SQL Block liên kết (bind) giá trị trả về
 	{
 		var count int
 		// :1 -> sql.Out{Dest: &count} (Giá trị trả về OUT)
@@ -164,29 +152,16 @@ func main() {
 			sql.Out{Dest: &count},
 		)
 		if err != nil {
-			log.Fatalf("Failed to call get_total_users via PL/SQL: %v\n", err)
+			log.Fatalf("Failed to call get_total_users PL/SQL: %v\n", err)
 		}
-		fmt.Printf("Method B (PL/SQL Out Bind) - Total users: %d\n", count)
+		fmt.Printf("- Total users: %d\n", count)
 	}
 
 	// -------------------------------------------------------------
 	// 5. Gọi Function có đối số trả về một giá trị: concat_user_info
 	// -------------------------------------------------------------
 	fmt.Println("\n--- [5] Calling Function: concat_user_info (with Argument and Return Value) ---")
-	
-	// Cách A: Sử dụng SELECT ... FROM DUAL
-	{
-		var userInfo string
-		// :1 -> firstUserID (IN)
-		query := "SELECT concat_user_info(:1) FROM dual"
-		err = db.QueryRowContext(runCtx, query, firstUserID).Scan(&userInfo)
-		if err != nil {
-			log.Fatalf("Failed to call concat_user_info via SELECT: %v\n", err)
-		}
-		fmt.Printf("Method A (SELECT FROM dual) - Info for ID %d: %s\n", firstUserID, userInfo)
-	}
 
-	// Cách B: Sử dụng PL/SQL block
 	{
 		var userInfo string
 		// :1 -> sql.Out{Dest: &userInfo} (Giá trị trả về OUT)
@@ -198,9 +173,9 @@ func main() {
 			firstUserID,
 		)
 		if err != nil {
-			log.Fatalf("Failed to call concat_user_info via PL/SQL: %v\n", err)
+			log.Fatalf("Failed to call concat_user_info: %v\n", err)
 		}
-		fmt.Printf("Method B (PL/SQL Out Bind) - Info for ID %d: %s\n", firstUserID, userInfo)
+		fmt.Printf("- Info for ID %d: %s\n", firstUserID, userInfo)
 	}
 
 	fmt.Println("\n--- All tests completed successfully! ---")

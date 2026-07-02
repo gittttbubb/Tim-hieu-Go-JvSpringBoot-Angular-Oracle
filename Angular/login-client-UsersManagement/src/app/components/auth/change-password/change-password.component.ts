@@ -15,7 +15,6 @@ import { AuthStore } from '../../../store/auth.store';
   selector: 'app-change-password',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, CardModule, ButtonModule, PasswordModule, ToastModule],
-  providers: [MessageService],
   templateUrl: './change-password.component.html',
   styleUrl: './change-password.component.scss'
 })
@@ -61,6 +60,14 @@ export class ChangePasswordComponent {
       });
       return;
     }
+    if (this.sameAsOldPassword()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'New password must be different from current password'
+      });
+      return;
+    }
     this.loading = true;
     this.authService.changePassword({
       oldPassword: this.form.controls.oldPassword.value,
@@ -76,6 +83,7 @@ export class ChangePasswordComponent {
           });
           this.form.reset();
           this.logout();
+          // this.router.navigate(['/dashboard']);
         },
         error: (err) => {
           this.messageService.add({
@@ -88,8 +96,16 @@ export class ChangePasswordComponent {
         }
       });
   }
+  sameAsOldPassword(): boolean {
+    const { oldPassword, newPassword } = this.form.getRawValue();
 
-  back(): void {
+    return (
+      oldPassword.length > 0 &&
+      newPassword.length > 0 &&
+      oldPassword === newPassword
+    );
+  }
+    back(): void {
     this.router.navigate(['/']);
   }
   logout(): void {

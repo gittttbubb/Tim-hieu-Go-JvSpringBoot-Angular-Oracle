@@ -17,13 +17,15 @@ import { AuthService } from '../../../services/auth.service';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
+import { PERMISSIONS } from '../../../constants/permission';
 
 export type UserFormMode = 'create' | 'detail' | 'edit';
 
 @Component({
   selector: 'app-user-form',
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, DropdownModule, 
-    ButtonModule, TagModule, RouterLink, SelectModule, ConfirmDialogModule, DialogModule, DatePipe],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, DropdownModule,
+    ButtonModule, TagModule, RouterLink, SelectModule, ConfirmDialogModule, DialogModule, DatePipe, HasPermissionDirective],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss'
 })
@@ -40,8 +42,12 @@ export class UserFormComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
 
+  readonly permissions = PERMISSIONS;
+
   tempPassword = '';
   showTempPasswordDialog = false;
+  passwordDialogTitle = '';
+  passwordDialogMessage = '';
 
   loading = false;
   mode: UserFormMode = 'create';
@@ -148,13 +154,16 @@ export class UserFormComponent implements OnInit {
     const request = this.form.getRawValue() as CreateUserRequest;
     this.userService.create(request)
       .subscribe({
-        next: () => {
+        next: (res) => {
+          this.tempPassword = res.data.temporaryPassword;
+          this.passwordDialogTitle = 'User Created';
+          this.passwordDialogMessage = 'User created successfully. Please save the temporary password below.';
+          this.showTempPasswordDialog = true;
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: 'User created'
+            detail: 'User created successfully'
           });
-          this.router.navigate(['/users']);
         },
         error: (err) => {
           this.messageService.add({
@@ -308,7 +317,10 @@ export class UserFormComponent implements OnInit {
           .subscribe({
             next: (res) => {
               this.tempPassword = res.data.temporaryPassword;
+              this.passwordDialogTitle = 'Password Reset';
+              this.passwordDialogMessage = 'Password has been reset successfully. Please provide this temporary password to the user.';
               this.showTempPasswordDialog = true;
+
               this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
@@ -336,5 +348,13 @@ export class UserFormComponent implements OnInit {
       summary: 'Copied',
       detail: 'Password copied to clipboard'
     });
+  }
+
+  closePasswordDialog(): void {
+    this.showTempPasswordDialog = false;
+
+    if (this.isCreate()) {
+      this.router.navigate(['/users']);
+    }
   }
 }

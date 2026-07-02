@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
-import { ChangePasswordRequest, LoginRequest, LoginResponse, ResetPasswordResponse } from '../models/auth.model';
+import { ChangePasswordRequest, LoginRequest, LoginResponse, TempPasswordResponse } from '../models/auth.model';
 import { ApiResponse, ApiErrorResponse } from '../models/api-response.model';
 
 @Injectable({
@@ -16,7 +16,7 @@ export class AuthService {
     }
 
     resetPassword(userId: string) {
-        return this.http.post<ApiResponse<ResetPasswordResponse>>(`${environment.apiUrl}/auth/reset-password/${userId}`, {});
+        return this.http.post<ApiResponse<TempPasswordResponse>>(`${environment.apiUrl}/auth/reset-password/${userId}`, {});
     }
     changePassword(payload: ChangePasswordRequest) {
         return this.http.post<ApiResponse<any>>(`${environment.apiUrl}/auth/change-password`, payload);

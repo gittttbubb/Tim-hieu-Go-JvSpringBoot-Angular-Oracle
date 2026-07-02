@@ -10,7 +10,7 @@ import {
   InputTextarea
 } from 'primeng/inputtextarea';
 import { TagModule } from 'primeng/tag';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
 import { PermissionService } from '../../../services/permisison.service';
@@ -24,7 +24,7 @@ import {
 
 @Component({
   selector: 'app-user-overrides',
-  imports: [CommonModule, ReactiveFormsModule, TableModule, ButtonModule, DialogModule, DropdownModule, InputTextModule, InputTextarea, TagModule],
+  imports: [CommonModule, ReactiveFormsModule, TableModule, ButtonModule, DialogModule, DropdownModule, InputTextModule, InputTextarea, TagModule, RouterLink],
   templateUrl: './user-overrides.component.html',
   styleUrl: './user-overrides.component.scss'
 })
@@ -70,7 +70,7 @@ export class UserOverridesComponent {
           this.roleService.getRoles()
             .subscribe(roleRes => {
               const role = roleRes.data.find(x => x.id === this.user?.roleId);
-              this.roleName = role?.displayName ?? '';
+              this.roleName = role?.name ?? '';
             });
         }
       });

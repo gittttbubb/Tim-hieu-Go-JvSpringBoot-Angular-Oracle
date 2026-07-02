@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { ApiResponse } from '../models/api-response.model';
 import { UserList, UserDetail, CreateUserRequest, UpdateUserRequest, AssignUserOverrideRequest, UserOverride } from '../models/user.model';
+import { TempPasswordResponse } from '../models/auth.model';
 
 @Injectable({
     providedIn: 'root'
@@ -22,8 +23,8 @@ export class UserService {
         return this.http.get<ApiResponse<UserDetail>>(`${this.api}/${id}`);
     }
 
-    create(request: CreateUserRequest): Observable<ApiResponse<any>> {
-        return this.http.post<ApiResponse<any>>(`${this.api}/create`, request);
+    create(request: CreateUserRequest): Observable<ApiResponse<TempPasswordResponse>> {
+        return this.http.post<ApiResponse<TempPasswordResponse>>(`${this.api}/create`, request);
     }
 
     update(id: string, request: UpdateUserRequest): Observable<ApiResponse<any>> {

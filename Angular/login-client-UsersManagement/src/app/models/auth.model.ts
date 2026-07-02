@@ -33,7 +33,7 @@ export interface ChangePasswordRequest {
     newPassword: string;
 }
 
-export interface ResetPasswordResponse {
+export interface TempPasswordResponse {
     message: string;
     temporaryPassword: string;
 }
