@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ApiResponse } from "../models/api-response.model";
+import { ApiResponse, PaginationResponse } from "../models/api-response.model";
 import { Permission } from "../models/permission.model";
 import { Observable } from "rxjs";
 import { environment } from "../../environments/environment.development";
@@ -14,6 +14,9 @@ export class PermissionService {
     private readonly api = `${environment.apiUrl}/permissions`;
 
     getPermissions(): Observable<ApiResponse<Permission[]>> {
-        return this.http.get<ApiResponse<Permission[]>>(this.api);
+        return this.http.get<ApiResponse<Permission[]>>(`${this.api}/all`);
+    }
+    getPermissionsPagination(params?: Record<string, any>): Observable<ApiResponse<PaginationResponse<Permission>>> {
+        return this.http.get<ApiResponse<PaginationResponse<Permission>>>(this.api,{ params });
     }
 }

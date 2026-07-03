@@ -9,7 +9,8 @@ import (
 type PermissionService interface {
 	GetByID(id string) (*dto.PermissionResponse, error)
 	GetByFeatureCode(featureCode string,) (*dto.PermissionResponse, error)
-	List() ([]dto.PermissionResponse, error)
+	List(keyword string, page int, pageSize int,) ([]dto.PermissionResponse, int64, error)
+	ListAll() ([]dto.PermissionResponse, error)
 }
 
 type permissionService struct {
@@ -50,12 +51,43 @@ func (s *permissionService) GetByFeatureCode(featureCode string,) (*dto.Permissi
 	return mapPermissionResponse(permission), nil
 }
 
-func (s *permissionService) List() ([]dto.PermissionResponse, error,) {
-	permissions, err := s.permissionRepo.List()
+func (s *permissionService) List(keyword string, page int, pageSize int,) ([]dto.PermissionResponse, int64, error) {
+    offset := (page - 1) * pageSize
+    permissions, total, err := s.permissionRepo.List(
+        keyword,
+        offset,
+        pageSize,
+    )
+    if err != nil {
+        return nil, 0, err
+    }
+    result := make([]dto.PermissionResponse, 0, len(permissions))
+    for _, permission := range permissions {
+        description := ""
+        if permission.Description != nil {
+            description = *permission.Description
+        }
+        result = append(result, dto.PermissionResponse{
+            ID:           permission.ID,
+            FeatureGroup: permission.FeatureGroup,
+            FeatureCode:  permission.FeatureCode,
+            Action:       permission.Action,
+            Description:  description,
+        })
+    }
+    return result, total, nil
+}
+
+func (s *permissionService) ListAll() ([]dto.PermissionResponse, error) {
+	permissions, err := s.permissionRepo.ListAll()
 	if err != nil {
 		return nil, err
 	}
-	result := make([]dto.PermissionResponse, 0, len(permissions))
+	result := make(
+		[]dto.PermissionResponse,
+		0,
+		len(permissions),
+	)
 	for _, permission := range permissions {
 		description := ""
 		if permission.Description != nil {

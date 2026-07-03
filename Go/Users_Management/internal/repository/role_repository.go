@@ -9,7 +9,8 @@ import (
 type RoleRepository interface {
 	GetByID(id string) (*model.Role, error)
 	GetByName(name string) (*model.Role, error)
-	List() ([]model.Role, error)
+	List(keyword string, offset int, pageSize int,) ([]model.Role, int64, error)
+	ListAll() ([]model.Role, error)
 	Create(role *model.Role) error
 	Update(role *model.Role) error
 	Delete(id string) error
@@ -58,8 +59,77 @@ func (r *roleRepository) GetByName(name string,) (*model.Role, error) {
 	return &role, nil
 }
 
-func (r *roleRepository) List() ([]model.Role, error) {
-	query := `SELECT id, name, display_name, description FROM roles ORDER BY name`
+func (r *roleRepository) List(keyword string, offset int, pageSize int,) ([]model.Role, int64, error) {
+	var (
+		rows  *sql.Rows
+		err   error
+		total int64
+	)
+	if keyword != "" {
+		searchKeyword := "%" + keyword + "%"
+		countQuery := `
+			SELECT COUNT(*)
+			FROM roles
+			WHERE
+				LOWER(name) LIKE LOWER(:keyword)
+				OR LOWER(display_name) LIKE LOWER(:keyword)
+				OR LOWER(description) LIKE LOWER(:keyword)
+		`
+		err = r.db.QueryRow(countQuery, sql.Named("keyword", searchKeyword)).Scan(&total)
+		if err != nil {
+			return nil, 0, err
+		}
+		query := `SELECT id, name, display_name, description FROM roles
+			WHERE LOWER(name) LIKE LOWER(:keyword)
+			OR LOWER(display_name) LIKE LOWER(:keyword)
+			OR LOWER(description) LIKE LOWER(:keyword)
+			ORDER BY name
+			OFFSET :offset ROWS
+			FETCH NEXT :pageSize ROWS ONLY
+		`
+		rows, err = r.db.Query(
+			query,
+			sql.Named("keyword", searchKeyword),
+			sql.Named("offset", offset),
+			sql.Named("pageSize", pageSize),
+		)
+	} else {
+		err = r.db.QueryRow(`SELECT COUNT(*) FROM roles`).Scan(&total)
+		if err != nil {
+			return nil, 0, err
+		}
+		query := `SELECT id, name, display_name, description FROM roles 
+		ORDER BY name OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY`
+		rows, err = r.db.Query(
+			query,
+			sql.Named("offset", offset),
+			sql.Named("pageSize", pageSize),
+		)
+	}
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+	roles := make([]model.Role, 0)
+	for rows.Next() {
+		var role model.Role
+		err := rows.Scan(
+			&role.ID,
+			&role.Name,
+			&role.DisplayName,
+			&role.Description,
+		)
+		if err != nil {
+			return nil, 0, err
+		}
+		roles = append(roles, role)
+	}
+	return roles, total, rows.Err()
+}
+
+func (r *roleRepository) ListAll() ([]model.Role, error) {
+	query := `SELECT id, name, display_name, description
+		FROM roles ORDER BY name`
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -77,7 +147,7 @@ func (r *roleRepository) List() ([]model.Role, error) {
 		if err != nil {
 			return nil, err
 		}
-		roles = append(roles, role,)
+		roles = append(roles, role)
 	}
 	return roles, rows.Err()
 }

@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 
+	"go-rbac-system/internal/model"
 	"go-rbac-system/internal/service"
 	"go-rbac-system/pkg/response"
 )
@@ -17,8 +20,8 @@ func NewPermissionHandler(permissionService service.PermissionService,) *Permiss
 	}
 }
 
-func (h *PermissionHandler) List(c *fiber.Ctx) error {
-	data, err := h.permissionService.List()
+func (h *PermissionHandler) ListAll(c *fiber.Ctx) error {
+	data, err := h.permissionService.ListAll()
 	if err != nil {
 		return response.Error(
 			c,
@@ -27,8 +30,45 @@ func (h *PermissionHandler) List(c *fiber.Ctx) error {
 		)
 	}
 	return response.Success(c, data)
-}
 
+}
+func (h *PermissionHandler) List(c *fiber.Ctx) error {
+    page := c.QueryInt("page", 1)
+    pageSize := c.QueryInt("pageSize", 10)
+    if page < 1 {
+        page = 1
+    }
+    if pageSize < 1 {
+        pageSize = 10
+    }
+    if pageSize > 100 {
+        pageSize = 100
+    }
+    keyword := strings.TrimSpace(
+        c.Query("keyword"),
+    )
+    data, total, err := h.permissionService.List(
+        keyword,
+        page,
+        pageSize,
+    )
+    if err != nil {
+        return response.Error(
+            c,
+            fiber.StatusInternalServerError,
+            err.Error(),
+        )
+    }
+    return response.Success(
+        c,
+        model.Pagination{
+            Items:    data,
+            Total:    total,
+            Page:     page,
+            PageSize: pageSize,
+        },
+    )
+}
 func (h *PermissionHandler) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	data, err := h.permissionService.GetByID(id)
@@ -56,7 +96,7 @@ func (h *PermissionHandler) GetByFeatureCode(c *fiber.Ctx) error {
 }
 
 func (h *PermissionHandler) Grouped(c *fiber.Ctx) error {
-	data, err := h.permissionService.List()
+	data, err := h.permissionService.ListAll()
 	if err != nil {
 		return response.Error(
 			c,

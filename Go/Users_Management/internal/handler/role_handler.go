@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 
 	"go-rbac-system/internal/dto"
+	"go-rbac-system/internal/model"
 	"go-rbac-system/internal/service"
 	"go-rbac-system/internal/validator"
 	"go-rbac-system/pkg/response"
@@ -23,9 +25,47 @@ func NewRoleHandler(roleService service.RoleService, rolePermissionService servi
 }
 
 func (h *RoleHandler) List(c *fiber.Ctx) error {
-	data, err := h.roleService.List()
+	page := c.QueryInt("page", 1)
+	pageSize := c.QueryInt("pageSize", 10)
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 10
+	}
+	if pageSize > 100 {
+		pageSize = 100
+	}
+	keyword := strings.TrimSpace(
+		c.Query("keyword"),
+	)
+	data, total, err := h.roleService.List(keyword, page, pageSize)
 	if err != nil {
-		return response.Error(c, fiber.StatusInternalServerError, err.Error())
+		return response.Error(
+			c,
+			fiber.StatusInternalServerError,
+			err.Error(),
+		)
+	}
+	return response.Success(
+		c,
+		model.Pagination{
+			Items:    data,
+			Total:    total,
+			Page:     page,
+			PageSize: pageSize,
+		},
+	)
+}
+
+func (h *RoleHandler) ListAll(c *fiber.Ctx) error {
+	data, err := h.roleService.ListAll()
+	if err != nil {
+		return response.Error(
+			c,
+			fiber.StatusInternalServerError,
+			err.Error(),
+		)
 	}
 	return response.Success(c, data)
 }

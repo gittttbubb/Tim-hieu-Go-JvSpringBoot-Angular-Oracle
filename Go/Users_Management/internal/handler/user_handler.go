@@ -3,11 +3,13 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 
 	"go-rbac-system/internal/constants"
 	"go-rbac-system/internal/dto"
+	"go-rbac-system/internal/model"
 	"go-rbac-system/internal/service"
 	"go-rbac-system/internal/validator"
 	"go-rbac-system/pkg/response"
@@ -26,11 +28,29 @@ func NewUserHandler(userService service.UserService, overrideService service.Use
 }
 
 func (h *UserHandler) List(c *fiber.Ctx) error {
-	users, err := h.userService.List()
-	if err != nil {
-		return response.Error(c, fiber.StatusInternalServerError, err.Error())
+	page := c.QueryInt("page", 1)
+	pageSize := c.QueryInt("pageSize", 10)
+	if page < 1 {
+		page = 1
 	}
-	return response.Success(c, users)
+	if pageSize < 1 {
+		pageSize = 10
+	}
+	if pageSize > 100 {
+		pageSize = 100
+	}
+	keyword := strings.TrimSpace(c.Query("keyword"))
+	users, total, err := h.userService.List(keyword,page,pageSize,)
+	if err != nil {
+		return response.Error(c, fiber.StatusInternalServerError, err.Error(),)
+	}
+	return response.Success(c,model.Pagination{
+			Items:    users,
+			Total:    total,
+			Page:     page,
+			PageSize: pageSize,
+		},
+	)
 }
 
 func (h *UserHandler) GetByID(c *fiber.Ctx) error {

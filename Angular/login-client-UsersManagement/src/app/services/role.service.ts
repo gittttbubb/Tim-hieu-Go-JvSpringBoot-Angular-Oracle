@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment.development';
 
-import { ApiResponse } from '../models/api-response.model';
+import { ApiResponse, PaginationResponse } from '../models/api-response.model';
 
 import { Role, RolePermission, RoleRequest } from '../models/role.model';
 
@@ -15,10 +15,18 @@ import { Role, RolePermission, RoleRequest } from '../models/role.model';
 export class RoleService {
 
     private readonly http = inject(HttpClient);
-    private readonly api =`${environment.apiUrl}/roles`;
+    private readonly api = `${environment.apiUrl}/roles`;
 
-    getRoles(): Observable<ApiResponse<Role[]>> {
-        return this.http.get<ApiResponse<Role[]>>(this.api);
+    getRoles(
+        params?: Record<string, any>
+    ): Observable<ApiResponse<PaginationResponse<Role>>> {
+        return this.http.get<ApiResponse<PaginationResponse<Role>>>(
+            this.api,
+            { params }
+        );
+    }
+    getAllRoles(): Observable<ApiResponse<Role[]>> {
+        return this.http.get<ApiResponse<Role[]>>(`${this.api}/all`);
     }
 
     getRoleById(id: string): Observable<ApiResponse<Role>> {
@@ -29,7 +37,7 @@ export class RoleService {
         return this.http.post<ApiResponse<any>>(`${this.api}/create`, payload);
     }
 
-    updateRole(id: string,payload: RoleRequest): Observable<ApiResponse<any>> {
+    updateRole(id: string, payload: RoleRequest): Observable<ApiResponse<any>> {
         return this.http.put<ApiResponse<any>>(`${this.api}/${id}`, payload);
     }
 
@@ -45,7 +53,7 @@ export class RoleService {
         return this.http.post<ApiResponse<any>>(`${this.api}/permissions/assign`, payload);
     }
 
-    removePermission(roleId: string,permissionId: string): Observable<ApiResponse<any>> {
+    removePermission(roleId: string, permissionId: string): Observable<ApiResponse<any>> {
         return this.http.delete<ApiResponse<any>>(`${this.api}/${roleId}/permissions/${permissionId}`);
     }
 }

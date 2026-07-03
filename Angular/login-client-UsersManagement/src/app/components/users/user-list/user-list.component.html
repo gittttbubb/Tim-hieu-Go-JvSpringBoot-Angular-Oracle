@@ -4,11 +4,23 @@
         <div>
             <h2>Users Management</h2>
         </div>
-        <button pButton icon="pi pi-plus" label="Thêm User" [routerLink]="['/users/create']">
-        </button>
+
+        <div class="header-actions">
+            <p-iconfield class="user-search">
+                <p-inputicon styleClass="pi pi-search"></p-inputicon>
+                <input pInputText type="text" placeholder="Search users..." [(ngModel)]="keyword"
+                    (ngModelChange)="onSearchChange($event)" />
+                <button *ngIf="keyword" pButton type="button" icon="pi pi-times" text rounded class="clear-btn"
+                    (click)="clearSearch()">
+                </button>
+            </p-iconfield>
+            <button pButton icon="pi pi-plus" label="Thêm User" [routerLink]="['/users/create']">
+            </button>
+        </div>
     </div>
     <div class="table-container">
-        <p-table [value]="users" [loading]="loading" styleClass="p-datatable-sm">
+        <p-table [value]="users" [loading]="loading" [lazy]="true" [paginator]="true" [rows]="pageSize"
+            [totalRecords]="totalRecords" (onLazyLoad)="onLazyLoad($event)" styleClass="p-datatable-sm">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Full Name</th>
@@ -37,9 +49,12 @@
                     </td>
                     <td>
                         <div class="actions">
-                            <button pButton icon="pi pi-eye" severity="info" text [routerLink]="['/users', user.id]"></button>
-                            <button pButton icon="pi pi-pencil" severity="warn" text [routerLink]="['/users/edit', user.id]"></button>
-                            <button pButton icon="pi pi-trash" severity="danger" text (click)="deleteUser(user.id)"></button>
+                            <button pButton icon="pi pi-eye" severity="info" text
+                                [routerLink]="['/users', user.id]"></button>
+                            <button pButton icon="pi pi-pencil" severity="warn" text
+                                [routerLink]="['/users/edit', user.id]"></button>
+                            <button pButton icon="pi pi-trash" severity="danger" text
+                                (click)="deleteUser(user.id)"></button>
                         </div>
                     </td>
                 </tr>

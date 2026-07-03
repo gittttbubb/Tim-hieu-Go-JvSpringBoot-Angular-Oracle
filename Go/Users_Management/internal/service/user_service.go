@@ -15,7 +15,7 @@ import (
 
 type UserService interface {
 	GetByID(id string,) (*dto.UserDetailResponse, error)
-	List() ([]dto.UserListResponse, error)
+	List(keyword string, page int, pageSize int,) ([]dto.UserListResponse, int64, error)
 	Create(req *dto.CreateUserRequest, actorID string, actor string,) (string, error)
 	Update(id string, req *dto.UpdateUserRequest,actorID string, actor string,) error
 	Delete(id string,actorID string, actor string,) error
@@ -78,19 +78,17 @@ func (s *userService) GetByID(id string) (*dto.UserDetailResponse, error) {
 	return mapUserDetailResponse(user), nil
 }
 
-func (s *userService) List() ([]dto.UserListResponse, error) {
-	users, err := s.userRepo.List()
+func (s *userService) List(keyword string, page int, pageSize int,) ([]dto.UserListResponse, int64, error) {
+	offset := (page - 1) * pageSize
+	users, total, err := s.userRepo.List(keyword,offset,pageSize,)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	result := make([]dto.UserListResponse, 0, len(users))
 	for _, user := range users {
-		result = append(
-			result,
-			mapUserListResponse(&user),
-		)
+		result = append(result, mapUserListResponse(&user))
 	}
-	return result, nil
+	return result, total, nil
 }
 
 func (s *userService) Create(req *dto.CreateUserRequest, actorID string, actor string,) (string, error) {

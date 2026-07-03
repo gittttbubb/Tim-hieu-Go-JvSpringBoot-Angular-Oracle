@@ -1,2 +1,0 @@
-Chưa test request forgot-password
-Cần thay đổi logic gửi email hoặc link forgot

@@ -1,0 +1,12 @@
+FE
+ẩn sidebar
+theme(tối, sáng)
+i18n(đa ngôn ngữ)
+tìm kiếm cho các bảng
+
+
+BE
+gửi email 1 link token nếu người dùng reset mật khẩu
+
+
+Chung: validate cho việc mật khẩu

@@ -4,21 +4,104 @@
     gap: 1rem;
 }
 
-.page-header h2 {
-    margin: 0;
-}
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.subtitle {
-    color: var(--text-color-secondary);
+    h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
 }
 
 .toolbar {
     display: flex;
-    gap: 1rem;
+    align-items: center;
     margin-bottom: 1rem;
 }
 
-:host ::ng-deep .p-tag {
-    min-width: 130px;
-    justify-content: center;
+.audit-search {
+    position: relative;
+    width: 420px;
+}
+
+.clear-btn {
+    position: absolute !important;
+
+    right: 0.35rem;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 2rem !important;
+    height: 2rem !important;
+
+    z-index: 2;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 2rem;
+    color: #64748b;
+}
+
+:host ::ng-deep {
+
+    .audit-search .p-inputtext {
+        width: 100%;
+    }
+
+    .audit-search .p-inputtext:focus {
+        box-shadow: none;
+    }
+
+    .p-card-body {
+        padding: 1.25rem;
+    }
+
+    .p-datatable {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .p-datatable-thead>tr>th {
+        background: #f8fafc;
+        color: #334155;
+        font-weight: 600;
+        white-space: nowrap;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .p-datatable-tbody>tr>td {
+        white-space: nowrap;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .p-datatable-tbody>tr:hover {
+        background: #f8fafc;
+    }
+
+    .p-tag {
+        min-width: 130px;
+        justify-content: center;
+    }
+
+    .p-button.p-button-text {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .audit-search {
+        width: 100%;
+    }
+
+    .toolbar {
+        width: 100%;
+    }
 }

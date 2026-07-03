@@ -7,22 +7,37 @@
 
     <p-card>
         <div class="toolbar">
-            <div class="search-box">
-                <i class="pi pi-search"></i>
-                <input pInputText [(ngModel)]="searchKeyword" (input)="applyFilter()"
-                    placeholder="Search permission..." />
-            </div>
-            <p-select class="group-filter" [options]="featureGroups" [(ngModel)]="selectedFeatureGroup"
-                optionLabel="label" optionValue="value" placeholder="Feature Group" (onChange)="applyFilter()">
-            </p-select>
-            <button pButton type="button" icon="pi pi-filter-slash"  severity="secondary" label="Clear"
-                (click)="clearFilter()">
-            </button>
-
+            <p-iconfield class="permission-search">
+                <p-inputicon styleClass="pi pi-search">
+                </p-inputicon>
+                <input
+                    pInputText
+                    type="text"
+                    placeholder="Search permissions..."
+                    [(ngModel)]="keyword"
+                    (ngModelChange)="onSearchChange($event)" />
+                <button
+                    *ngIf="keyword"
+                    pButton
+                    type="button"
+                    icon="pi pi-times"
+                    text
+                    rounded
+                    class="clear-btn"
+                    (click)="clearFilter()">
+                </button>
+            </p-iconfield>
         </div>
-
-        <p-table [value]="filteredPermissions" [loading]="loading" [paginator]="true" [rows]="20"
-            [rowsPerPageOptions]="[10,20,50]" responsiveLayout="scroll" styleClass="p-datatable-sm">
+        <p-table
+            [value]="permissions"
+            [loading]="loading"
+            [lazy]="true"
+            [paginator]="true"
+            [rows]="pageSize"
+            [totalRecords]="totalRecords"
+            [rowsPerPageOptions]="[10,20,50]"
+            (onLazyLoad)="onLazyLoad($event)"
+            responsiveLayout="scroll">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Feature Group</th>
@@ -31,16 +46,25 @@
                     <th>Description</th>
                 </tr>
             </ng-template>
-
             <ng-template pTemplate="body" let-item>
                 <tr>
-                    <td><p-tag [value]="item.featureGroup"></p-tag></td>
-                    <td><span class="permission-code"> {{ item.featureCode }}</span></td>
-                    <td>{{ item.action }}</td>
-                    <td>{{ item.description }}</td>
+                    <td>
+                        <p-tag [value]="item.featureGroup">
+                        </p-tag>
+                    </td>
+                    <td>
+                        <span class="permission-code">
+                            {{ item.featureCode }}
+                        </span>
+                    </td>
+                    <td>
+                        {{ item.action }}
+                    </td>
+                    <td>
+                        {{ item.description }}
+                    </td>
                 </tr>
             </ng-template>
-
             <ng-template pTemplate="emptymessage">
                 <tr>
                     <td colspan="4" class="empty-message">

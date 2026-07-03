@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"time"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 
+	"go-rbac-system/internal/model"
 	"go-rbac-system/internal/service"
 	"go-rbac-system/pkg/response"
 )
@@ -68,45 +69,47 @@ func (h *AuditHandler) ListByTenant(c *fiber.Ctx) error {
 	return response.Success(c, logs)
 }
 
-func (h *AuditHandler) ListWithFilter(c *fiber.Ctx) error {
-	tenantID := c.Query("tenantId")
-	if tenantID == "" {
-		return response.Error(c, fiber.StatusBadRequest, "tenantId is required")
-	}
-	actorID := c.Query("actorId")
-	entityType := c.Query("entityType")
-	entityID := c.Query("entityId")
-	fromStr := c.Query("from")
-	toStr := c.Query("to")
+func (h *AuditHandler) List(c *fiber.Ctx) error {
+	page := c.QueryInt("page", 1)
+	pageSize := c.QueryInt("pageSize", 20)
 
-	var from, to time.Time
-	var err error
-	if fromStr != "" {
-		from, err = time.Parse(time.RFC3339, fromStr)
-		if err != nil {
-			return response.Error(c, fiber.StatusBadRequest, "invalid from date")
-		}
+	if page < 1 {
+		page = 1
 	}
-	if toStr != "" {
-		to, err = time.Parse(time.RFC3339, toStr)
-		if err != nil {
-			return response.Error(c, fiber.StatusBadRequest, "invalid to date")
-		}
+
+	if pageSize < 1 {
+		pageSize = 20
 	}
-	limit := c.QueryInt("limit", 20)
-	offset := c.QueryInt("offset", 0)
-	logs, err := h.auditService.ListWithFilter(
-		tenantID,
-		actorID,
-		entityType,
-		entityID,
-		from,
-		to,
-		limit,
-		offset,
+
+	if pageSize > 100 {
+		pageSize = 100
+	}
+
+	keyword := strings.TrimSpace(
+		c.Query("keyword"),
 	)
+
+	logs, total, err := h.auditService.List(
+		keyword,
+		page,
+		pageSize,
+	)
+
 	if err != nil {
-		return response.Error(c, fiber.StatusInternalServerError, err.Error())
+		return response.Error(
+			c,
+			fiber.StatusInternalServerError,
+			err.Error(),
+		)
 	}
-	return response.Success(c, logs)
+
+	return response.Success(
+		c,
+		model.Pagination{
+			Items:    logs,
+			Total:    total,
+			Page:     page,
+			PageSize: pageSize,
+		},
+	)
 }

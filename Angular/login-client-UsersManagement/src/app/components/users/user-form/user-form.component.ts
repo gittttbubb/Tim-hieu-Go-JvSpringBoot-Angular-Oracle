@@ -99,7 +99,7 @@ export class UserFormComponent implements OnInit {
   }
 
   private loadRoles(): void {
-    this.roleService.getRoles()
+    this.roleService.getAllRoles()
       .subscribe({
         next: response => {
           this.roles = response.data;

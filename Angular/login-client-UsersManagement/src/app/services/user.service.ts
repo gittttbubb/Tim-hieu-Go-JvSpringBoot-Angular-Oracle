@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment.development';
-import { ApiResponse } from '../models/api-response.model';
+import { ApiResponse, PaginationResponse } from '../models/api-response.model';
 import { UserList, UserDetail, CreateUserRequest, UpdateUserRequest, AssignUserOverrideRequest, UserOverride } from '../models/user.model';
 import { TempPasswordResponse } from '../models/auth.model';
 
@@ -15,8 +15,11 @@ export class UserService {
     private readonly http = inject(HttpClient);
     private readonly api = `${environment.apiUrl}/users`;
 
-    getUsers(): Observable<ApiResponse<UserList[]>> {
-        return this.http.get<ApiResponse<UserList[]>>(this.api);
+    getUsers(params?: Record<string, any>): Observable<ApiResponse<PaginationResponse<UserList>>> {
+        return this.http.get<ApiResponse<PaginationResponse<UserList>>>(
+            this.api,
+            { params }
+        );
     }
 
     getById(id: string): Observable<ApiResponse<UserDetail>> {

@@ -60,6 +60,7 @@ func UserRoutes(api fiber.Router, cfg RouteConfig) {
 func RoleRoutes(api fiber.Router, cfg RouteConfig) {
 	roles := api.Group("/roles", cfg.AuthMiddleware.RequireAuth())
 	roles.Get("/", cfg.PermissionMiddleware.RequireAny("ROLE_VIEW", "USER_VIEW"), cfg.RoleHandler.List)
+	roles.Get("/all", cfg.PermissionMiddleware.RequireAny("ROLE_VIEW", "USER_VIEW"), cfg.RoleHandler.ListAll)
 	roles.Get("/:id", cfg.PermissionMiddleware.Require("ROLE_VIEW"), cfg.RoleHandler.GetByID)
 	roles.Post("/create", cfg.PermissionMiddleware.Require("ROLE_CREATE"), cfg.RoleHandler.Create)
 	roles.Put("/:id", cfg.PermissionMiddleware.Require("ROLE_UPDATE"), cfg.RoleHandler.Update)
@@ -75,6 +76,7 @@ func RoleRoutes(api fiber.Router, cfg RouteConfig) {
 func PermissionRoutes(api fiber.Router, cfg RouteConfig) {
 	permissions := api.Group("/permissions", cfg.AuthMiddleware.RequireAuth())
 	permissions.Get("/", cfg.PermissionMiddleware.Require("PERMISSION_VIEW"), cfg.PermissionHandler.List)
+	permissions.Get("/all", cfg.PermissionMiddleware.Require("PERMISSION_VIEW"), cfg.PermissionHandler.ListAll)
 	permissions.Get("/grouped", cfg.PermissionMiddleware.Require("PERMISSION_VIEW"), cfg.PermissionHandler.Grouped)
 	permissions.Get("/:id", cfg.PermissionMiddleware.Require("PERMISSION_VIEW"), cfg.PermissionHandler.GetByID)
 	permissions.Get("/feature/:featureCode", cfg.PermissionMiddleware.Require("PERMISSION_VIEW"), cfg.PermissionHandler.GetByFeatureCode)
@@ -83,7 +85,7 @@ func PermissionRoutes(api fiber.Router, cfg RouteConfig) {
 // AUDIT
 func AuditRoutes(api fiber.Router, cfg RouteConfig) {
 	audits := api.Group("/audits", cfg.AuthMiddleware.RequireAuth())
-	audits.Get("/", cfg.PermissionMiddleware.Require("AUDIT_VIEW"), cfg.AuditHandler.ListWithFilter)
+	audits.Get("/", cfg.PermissionMiddleware.Require("AUDIT_VIEW"), cfg.AuditHandler.List)
 	audits.Get("/all", cfg.PermissionMiddleware.Require("AUDIT_VIEW"), cfg.AuditHandler.GetAll,)
 	audits.Get("/:id", cfg.PermissionMiddleware.Require("AUDIT_VIEW"), cfg.AuditHandler.GetByID)
 	audits.Get("/actor/:actorId", cfg.PermissionMiddleware.Require("AUDIT_VIEW"), cfg.AuditHandler.ListByActor)

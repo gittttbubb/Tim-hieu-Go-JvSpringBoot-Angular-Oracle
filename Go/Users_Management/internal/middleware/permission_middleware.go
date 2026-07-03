@@ -59,7 +59,7 @@ func (m *permissionMiddleware) Require(permissionCode string) fiber.Handler {
 			)
 		}
 		// 3. Load permission catalog (ID -> Code mapping)
-		permissions, err := m.permissionRepo.List()
+		permissions, err := m.permissionRepo.ListAll()
 		if err != nil {
 			return response.Error(
 				c,
@@ -123,7 +123,7 @@ func (m *permissionMiddleware) RequireAny(permissionCodes ...string) fiber.Handl
                 "failed to load authorization data",
             )
         }
-        permissions, err := m.permissionRepo.List()
+        permissions, err := m.permissionRepo.ListAll()
         if err != nil {
             return response.Error(
                 c,

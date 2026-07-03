@@ -3,6 +3,42 @@
     width: 100%;
     min-width: 0;
 }
+:host ::ng-deep {
+
+    .user-search .p-inputtext {
+        width: 100%;
+    }
+
+    .user-search .p-inputtext:focus {
+        box-shadow: none;
+    }
+
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-search {
+    position: relative;
+    width: 420px;
+}
+
+.clear-btn {
+    position: absolute !important;
+
+    right: 0.35rem;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 2rem !important;
+    height: 2rem !important;
+
+    z-index: 2;
+}
 
 .user-page {
     width: 100%;
@@ -63,7 +99,7 @@
         overflow-x: auto;
     }
 
-    .p-datatable-thead > tr > th {
+    .p-datatable-thead>tr>th {
         background: #f8fafc;
         color: #334155;
         font-weight: 600;
@@ -71,12 +107,12 @@
         border-bottom: 1px solid #e2e8f0;
     }
 
-    .p-datatable-tbody > tr > td {
+    .p-datatable-tbody>tr>td {
         white-space: nowrap;
         border-bottom: 1px solid #f1f5f9;
     }
 
-    .p-datatable-tbody > tr:hover {
+    .p-datatable-tbody>tr:hover {
         background: #f8fafc;
     }
 

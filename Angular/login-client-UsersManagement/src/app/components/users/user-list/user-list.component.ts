@@ -10,10 +10,18 @@ import { UserList } from '../../../models/user.model';
 import { RouterLink } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
   selector: 'app-user-list',
-  imports: [CommonModule, TableModule, TagModule, ButtonModule, ProgressSpinnerModule, RouterLink, ConfirmDialogModule],
+  imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, ProgressSpinnerModule,
+    RouterLink, ConfirmDialogModule, InputTextModule, IconFieldModule, InputIconModule,],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss'
 })
@@ -22,17 +30,32 @@ export class UserListComponent implements OnInit {
   private readonly roleService = inject(RoleService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly searchSubject = new Subject<string>();
 
   users: UserList[] = [];
   loading = false;
+  page = 1;
+  pageSize = 10;
+  totalRecords = 0;
+  keyword = '';
   rolesMap = new Map<string, string>();
 
   ngOnInit(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.page = 1;
+        this.loadUsers();
+      });
+
     this.loadRoles();
   }
 
   private loadRoles(): void {
-    this.roleService.getRoles().subscribe({
+    this.roleService.getAllRoles().subscribe({
       next: response => {
         response.data.forEach(role => {
           this.rolesMap.set(
@@ -46,16 +69,27 @@ export class UserListComponent implements OnInit {
   }
 
   private loadUsers(): void {
+
     this.loading = true;
-    this.userService.getUsers().subscribe({
-      next: response => {
-        this.users = response.data;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      }
-    });
+
+    this.userService.getUsers({
+      page: this.page,
+      pageSize: this.pageSize,
+      keyword: this.keyword
+    })
+      .subscribe({
+        next: response => {
+
+          this.users = response.data.items;
+
+          this.totalRecords = response.data.total;
+
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
   }
 
   getRoleName(roleId: string): string {
@@ -99,5 +133,22 @@ export class UserListComponent implements OnInit {
           });
       }
     });
+  }
+
+  onSearchChange(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  clearSearch(): void {
+    this.keyword = '';
+    this.page = 1;
+    this.loadUsers();
+  }
+  onLazyLoad(event: TableLazyLoadEvent): void {
+    const rows = event.rows ?? this.pageSize;
+    const first = event.first ?? 0;
+    this.pageSize = rows;
+    this.page = Math.floor(first / rows) + 1;
+    this.loadUsers();
   }
 }

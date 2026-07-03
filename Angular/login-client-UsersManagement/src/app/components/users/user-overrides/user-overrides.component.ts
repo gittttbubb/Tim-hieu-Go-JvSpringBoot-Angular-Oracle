@@ -67,7 +67,7 @@ export class UserOverridesComponent {
       .subscribe({
         next: res => {
           this.user = res.data;
-          this.roleService.getRoles()
+          this.roleService.getAllRoles()
             .subscribe(roleRes => {
               const role = roleRes.data.find(x => x.id === this.user?.roleId);
               this.roleName = role?.name ?? '';

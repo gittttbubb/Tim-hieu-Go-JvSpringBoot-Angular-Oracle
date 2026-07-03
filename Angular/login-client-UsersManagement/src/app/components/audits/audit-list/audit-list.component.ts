@@ -12,10 +12,17 @@ import { TagModule } from 'primeng/tag';
 import { AuditService } from '../../../services/audit.service';
 import { AuditLog } from '../../../models/audit.model';
 import { ButtonModule } from 'primeng/button';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { TableLazyLoadEvent } from 'primeng/table';
+
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
   selector: 'app-audit-list',
-  imports: [CommonModule, FormsModule, RouterLink, TableModule, CardModule, InputTextModule, TagModule, ButtonModule, DatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, TableModule, CardModule, InputTextModule, TagModule,
+    ButtonModule, DatePipe, IconFieldModule, InputIconModule],
   templateUrl: './audit-list.component.html',
   styleUrl: './audit-list.component.scss'
 })
@@ -24,20 +31,36 @@ export class AuditListComponent implements OnInit {
   private readonly auditService = inject(AuditService);
   loading = false;
   audits: AuditLog[] = [];
-  filteredAudits: AuditLog[] = [];
+  page = 1;
+  pageSize = 10;
+  totalRecords = 0;
+  private readonly searchSubject = new Subject<string>();
   keyword = '';
 
   ngOnInit(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.page = 1;
+        this.loadData();
+      });
     this.loadData();
   }
 
   loadData(): void {
     this.loading = true;
-    this.auditService.getAudits()
+    this.auditService.getAuditsPagination({
+      page: this.page,
+      pageSize: this.pageSize,
+      keyword: this.keyword
+    })
       .subscribe({
         next: (res) => {
-          this.audits = res.data;
-          this.filteredAudits = [...this.audits];
+          this.audits = res.data.items;
+          this.totalRecords = res.data.total;
           this.loading = false;
         },
         error: () => {
@@ -46,20 +69,21 @@ export class AuditListComponent implements OnInit {
       });
   }
 
-  applyFilter(): void {
-    const keyword = this.keyword.toLowerCase();
-    this.filteredAudits =
-      this.audits.filter(x =>
-        x.action.toLowerCase().includes(keyword)
-        ||
-        x.actor?.toLowerCase().includes(keyword)
-        ||
-        x.entityType?.toLowerCase().includes(keyword)
-      );
+  onSearchChange(value: string): void {
+    this.searchSubject.next(value);
   }
 
   clearFilter(): void {
     this.keyword = '';
-    this.filteredAudits = [...this.audits];
+    this.page = 1;
+    this.loadData();
+  }
+
+  onLazyLoad(event: TableLazyLoadEvent): void {
+    const rows = event.rows ?? this.pageSize;
+    const first = event.first ?? 0;
+    this.pageSize = rows;
+    this.page = Math.floor(first / rows) + 1;
+    this.loadData();
   }
 }

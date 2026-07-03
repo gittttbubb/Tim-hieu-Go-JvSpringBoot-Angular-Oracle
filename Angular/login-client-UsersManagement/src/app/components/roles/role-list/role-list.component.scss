@@ -1,0 +1,43 @@
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 1rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.search-box {
+    position: relative;
+    width: 380px;
+}
+
+.clear-btn {
+    position: absolute !important;
+
+    right: 0.35rem;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 2rem !important;
+    height: 2rem !important;
+
+    z-index: 2;
+}
+
+:host ::ng-deep {
+
+    .search-box .p-inputtext {
+        width: 100%;
+    }
+
+    .p-datatable-thead > tr > th {
+        font-weight: 600;
+    }
+}

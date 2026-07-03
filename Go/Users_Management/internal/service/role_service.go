@@ -12,7 +12,8 @@ import (
 
 type RoleService interface {
 	GetByID(id string) (*dto.RoleResponse, error)
-	List() ([]dto.RoleResponse, error)
+	List(keyword string, page int, pageSize int) ([]dto.RoleResponse, int64, error)
+	ListAll() ([]dto.RoleResponse, error)
 	Create(req *dto.CreateRoleRequest) error
 	Update(id string, req *dto.UpdateRoleRequest) error
 	Delete(id string) error
@@ -47,12 +48,45 @@ func (s *roleService) GetByID(id string,) (*dto.RoleResponse, error) {
 	return mapRoleResponse(role), nil
 }
 
-func (s *roleService) List() ([]dto.RoleResponse, error) {
-	roles, err := s.roleRepo.List()
+func (s *roleService) List(keyword string, page int, pageSize int) ([]dto.RoleResponse, int64, error) {
+	offset := (page - 1) * pageSize
+	roles, total, err := s.roleRepo.List(
+		keyword,
+		offset,
+		pageSize,
+	)
+	if err != nil {
+		return nil, 0, err
+	}
+	result := make([]dto.RoleResponse, 0, len(roles))
+	for _, role := range roles {
+		description := ""
+		if role.Description != nil {
+			description = *role.Description
+		}
+		result = append(
+			result,
+			dto.RoleResponse{
+				ID:          role.ID,
+				Name:        role.Name,
+				DisplayName: role.DisplayName,
+				Description: description,
+			},
+		)
+	}
+	return result, total, nil
+}
+
+func (s *roleService) ListAll() ([]dto.RoleResponse, error) {
+	roles, err := s.roleRepo.ListAll()
 	if err != nil {
 		return nil, err
 	}
-	result := make([]dto.RoleResponse, 0, len(roles),)
+	result := make(
+		[]dto.RoleResponse,
+		0,
+		len(roles),
+	)
 	for _, role := range roles {
 		description := ""
 		if role.Description != nil {

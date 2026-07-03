@@ -11,7 +11,7 @@ type UserRepository interface {
 	GetByID(id string) (*model.User, error)
 	GetByUsername(username string) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
-	List() ([]model.User, error)
+	List(keyword string, offset int, pageSize int,) ([]model.User, int64, error)
 	Create(user *model.User) error
 	Update(user *model.User) error
 	UpdatePassword(userID string, passwordHash string, changedAt time.Time, mustChangePassword bool,) error
@@ -75,22 +75,74 @@ func (r *userRepository) GetByEmail(email string,) (*model.User, error) {
 	return scanUser(row)
 }
 
-func (r *userRepository) List() ([]model.User, error) {
-	query := userSelectQuery +  ` ORDER BY created_at DESC`
-	rows, err := r.db.Query(query)
+func (r *userRepository) List(keyword string,offset int, pageSize int,) ([]model.User, int64, error) {
+	var (
+		rows  *sql.Rows
+		err   error
+		total int64
+	)
+	if keyword != "" {
+		searchKeyword := "%" + keyword + "%"
+		countQuery := `
+			SELECT COUNT(*)
+			FROM users
+			WHERE
+				LOWER(username) LIKE LOWER(:keyword)
+				OR LOWER(full_name) LIKE LOWER(:keyword)
+				OR LOWER(email) LIKE LOWER(:keyword)
+				OR LOWER(phone) LIKE LOWER(:keyword)
+				OR LOWER(status) LIKE LOWER(:keyword)
+		`
+		err = r.db.QueryRow(countQuery,sql.Named("keyword", searchKeyword),).Scan(&total)
+		if err != nil {
+			return nil, 0, err
+		}
+		query := userSelectQuery + `
+			WHERE
+				LOWER(username) LIKE LOWER(:keyword)
+				OR LOWER(full_name) LIKE LOWER(:keyword)
+				OR LOWER(email) LIKE LOWER(:keyword)
+				OR LOWER(phone) LIKE LOWER(:keyword)
+				OR LOWER(status) LIKE LOWER(:keyword)
+			ORDER BY created_at DESC
+			OFFSET :offset ROWS
+			FETCH NEXT :pageSize ROWS ONLY
+		`
+		rows, err = r.db.Query(
+			query,
+			sql.Named("keyword", searchKeyword),
+			sql.Named("offset", offset),
+			sql.Named("pageSize", pageSize),
+		)
+	} else {
+		err = r.db.QueryRow(`SELECT COUNT(*) FROM users`,).Scan(&total)
+		if err != nil {
+			return nil, 0, err
+		}
+		query := userSelectQuery + `
+			ORDER BY created_at DESC
+			OFFSET :offset ROWS
+			FETCH NEXT :pageSize ROWS ONLY
+		`
+		rows, err = r.db.Query(
+			query,
+			sql.Named("offset", offset),
+			sql.Named("pageSize", pageSize),
+		)
+	}
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 	users := make([]model.User, 0)
 	for rows.Next() {
 		user, err := scanUser(rows)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
-		users = append(users, *user,)
+		users = append(users, *user)
 	}
-	return users, rows.Err()
+	return users, total, rows.Err()
 }
 
 func (r *userRepository) Create(user *model.User,) error {

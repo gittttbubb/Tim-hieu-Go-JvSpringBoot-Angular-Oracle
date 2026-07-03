@@ -23,8 +23,7 @@ type AuditService interface {
 	ListByActorID(actorID string,) ([]model.AuditLog, error)
 	ListByEntity(entityType string, entityID string,) ([]model.AuditLog, error)
 	ListByTenant(tenantID string,) ([]model.AuditLog, error)
-	ListWithFilter(tenantID string, actorID string, entityType string,entityID string,from time.Time,
-		to time.Time,limit int,offset int) ([]model.AuditLog, error)
+	List(keyword string, page int, pageSize int,) ([]model.AuditLog, int64, error)
 }
 
 type auditService struct {
@@ -84,7 +83,17 @@ func (s *auditService) ListByTenant(tenantID string,) ([]model.AuditLog, error) 
 	return s.auditRepo.ListByTenant(tenantID)
 }
 
-func (s *auditService) ListWithFilter(tenantID string, actorID string, entityType string, entityID string, from time.Time, to time.Time,
-	limit int,offset int) ([]model.AuditLog, error) {
-	return s.auditRepo.ListWithFilter(tenantID, actorID, entityType, entityID, from, to, limit, offset)
+func (s *auditService) List(
+	keyword string,
+	page int,
+	pageSize int,
+) ([]model.AuditLog, int64, error) {
+
+	offset := (page - 1) * pageSize
+
+	return s.auditRepo.List(
+		keyword,
+		offset,
+		pageSize,
+	)
 }
