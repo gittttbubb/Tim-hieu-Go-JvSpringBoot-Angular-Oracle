@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { PERMISSIONS } from '../../constants/permission';
@@ -11,5 +11,5 @@ import { PERMISSIONS } from '../../constants/permission';
 })
 export class SideBarComponent {
   readonly permissions = PERMISSIONS;
- 
+  @Input() collapsed = false;
 }

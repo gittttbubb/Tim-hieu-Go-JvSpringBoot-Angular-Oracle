@@ -1,10 +1,17 @@
 <div class="layout">
 
-    <app-side-bar></app-side-bar>
+    <app-side-bar
+        [collapsed]="sidebarCollapsed()">
+    </app-side-bar>
 
-    <div class="layout-content">
+    <div
+        class="layout-content"
+        [class.collapsed]="sidebarCollapsed()">
 
-        <app-top-bar></app-top-bar>
+        <app-top-bar
+            [collapsed]="sidebarCollapsed()"
+            (toggleSidebar)="toggleSidebar()">
+        </app-top-bar>
 
         <main class="page-content">
             <router-outlet></router-outlet>
