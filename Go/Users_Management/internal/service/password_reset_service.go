@@ -10,6 +10,7 @@ import (
 	"go-rbac-system/internal/dto"
 	"go-rbac-system/internal/model"
 	"go-rbac-system/internal/repository"
+	"go-rbac-system/internal/validator"
 	"go-rbac-system/pkg/utils"
 )
 
@@ -123,11 +124,14 @@ func (s *passwordResetService) ChangePassword(userID string, req *dto.ChangePass
     if err != nil {
         return err
     }
+    if err := validator.ValidatePassword(req.NewPassword); err != nil {
+        return err
+    }
     // optional: enforce first login logic
     if user.MustChangePassword == false {
         // normal flow
         if !utils.CheckPassword(user.PasswordHash, req.OldPassword) {
-            return errors.New("old password is incorrect")
+            return errors.New("Old password is incorrect")
         }
     }
     passwordHash, err := utils.HashPassword(req.NewPassword)

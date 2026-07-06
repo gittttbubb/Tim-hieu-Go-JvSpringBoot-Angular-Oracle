@@ -10,6 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { AuthStore } from '../../../store/auth.store';
+import { strongPasswordValidator } from '../../../shared/validators/password.validator';
 
 @Component({
   selector: 'app-change-password',
@@ -30,10 +31,11 @@ export class ChangePasswordComponent {
     oldPassword: ['', Validators.required],
     newPassword: ['',
       [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(100)
-      ]
+      Validators.required,
+      Validators.minLength(8),
+      Validators.maxLength(100),
+      strongPasswordValidator()
+    ]
     ],
     confirmPassword: ['', Validators.required]
   });

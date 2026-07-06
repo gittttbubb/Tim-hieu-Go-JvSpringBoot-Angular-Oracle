@@ -17,7 +17,7 @@ func CheckPassword(hash string, password string,) bool {
 
 const passwordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"
 func GenerateTempPassword() string {
-	length := 6
+	length := 8
 	password := make([]byte, length)
 	for i := range password {
 		n, err := rand.Int(
