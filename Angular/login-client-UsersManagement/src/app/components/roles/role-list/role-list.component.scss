@@ -40,4 +40,11 @@
     .p-datatable-thead > tr > th {
         font-weight: 600;
     }
+    .p-datatable-thead>tr>th {
+        background: var(--app-bg-color);
+        color: var(--app-text-color);
+        font-weight: 600;
+        white-space: nowrap;
+        border-bottom: 1px solid var(--app-border-color);
+    }
 }

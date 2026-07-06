@@ -4,12 +4,12 @@
     position: fixed;
     left: 0;
     top: 0;
-    background: #0f172a;
-    color: white;
+    background: var(--app-sidebar-bg);
+    color: var(--app-sidebar-text);
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #1e293b;
-    transition: width 0.3s ease;
+    border-right: 1px solid var(--app-sidebar-border);
+    transition: width 0.3s ease, background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .sidebar.collapsed {
@@ -24,7 +24,8 @@
     padding: 0 20px;
     font-size: 1.1rem;
     font-weight: 700;
-    border-bottom: 1px solid #1e293b;
+    border-bottom: 1px solid var(--app-sidebar-border);
+    transition: border-color 0.2s;
 }
 
 .sidebar.collapsed .logo {
@@ -48,7 +49,7 @@ nav a {
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: #cbd5e1;
+    color: var(--app-sidebar-text);
     padding: 12px 14px;
     border-radius: 10px;
     transition: all 0.2s ease;
@@ -59,13 +60,13 @@ nav a {
 }
 
 nav a:hover {
-    background: #1e293b;
-    color: white;
+    background: var(--app-sidebar-hover-bg);
+    color: var(--app-text-color);
 }
 
 nav a.active {
-    background: #2563eb;
-    color: white;
+    background: var(--app-sidebar-active-bg);
+    color: var(--app-sidebar-active-text);
 }
 
 nav a i {

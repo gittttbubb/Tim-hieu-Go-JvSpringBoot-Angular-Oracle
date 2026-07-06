@@ -2,6 +2,7 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { AuthStore } from '../../store/auth.store';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-top-bar',
@@ -15,6 +16,7 @@ export class TopBarComponent {
   @Output() toggleSidebar = new EventEmitter<void>();
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
+  public readonly themeService = inject(ThemeService);
 
   get username(): string {
     return (this.authStore.getUser()?.username ?? '');

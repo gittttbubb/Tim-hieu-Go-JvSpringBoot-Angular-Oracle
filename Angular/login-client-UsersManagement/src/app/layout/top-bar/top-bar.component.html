@@ -2,43 +2,25 @@
 
     <div class="left-section">
         <!-- [icon]="collapsed ? 'pi pi-bars' : 'pi pi-angle-left'" -->
-        <button
-            pButton
-            text
-            severity="secondary"
-            [icon]="'pi pi-bars'"
-            (click)="toggleSidebar.emit()">
-        </button>
-
+        <button pButton text severity="secondary" [icon]="'pi pi-bars'" (click)="toggleSidebar.emit()"></button>
         <div class="page-title">
             Users Management
         </div>
 
     </div>
-
     <div class="actions">
-
         <span class="username">
             <i class="pi pi-user"></i>
             {{ username }}
         </span>
-
-        <button
-            pButton
+        <button pButton text rounded
+            [icon]="themeService.isDark() ? 'pi pi-sun' : 'pi pi-moon'"
             severity="secondary"
-            icon="pi pi-lock"
-            label="Đổi mật khẩu"
-            routerLink="/change-password">
+            (click)="themeService.toggleTheme()"
+            aria-label="Toggle Theme">
         </button>
-
-        <button
-            pButton
-            severity="danger"
-            icon="pi pi-sign-out"
-            label="Đăng xuất"
-            (click)="logout()">
-        </button>
-
+        <button pButton severity="secondary" icon="pi pi-lock" label="Đổi mật khẩu" routerLink="/change-password"></button>
+        <button pButton severity="danger" icon="pi pi-sign-out" label="Đăng xuất" (click)="logout()"></button>
     </div>
 
 </header>

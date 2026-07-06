@@ -1,11 +1,54 @@
 @import "primeicons/primeicons.css";
 
+:root {
+  --app-bg-color: #f8fafc;
+  --app-text-color: #0f172a;
+  
+  --app-sidebar-bg: #eeecec;
+  --app-sidebar-text: #475569;
+  --app-sidebar-border: #e2e8f0;
+  --app-sidebar-hover-bg: #f1f5f9;
+  --app-sidebar-active-bg: #eff6ff;
+  --app-sidebar-active-text: #2563eb;
+  
+  --app-topbar-bg: #ffffff;
+  --app-topbar-border: #e2e8f0;
+  --app-topbar-text: #0f172a;
+  --app-topbar-username: #475569;
+  
+  --app-card-bg: #ffffff;
+  --app-border-color: #e2e8f0;
+}
+
+.app-dark {
+  --app-bg-color: #090d16;
+  --app-text-color: #f9fafb;
+  
+  --app-sidebar-bg: #111827;
+  --app-sidebar-text: #9ca3af;
+  --app-sidebar-border: #1f2937;
+  --app-sidebar-hover-bg: #1f2937;
+  --app-sidebar-active-bg: #1e1b4b;
+  --app-sidebar-active-text: #818cf8;
+  
+  --app-topbar-bg: #111827;
+  --app-topbar-border: #1f2937;
+  --app-topbar-text: #f9fafb;
+  --app-topbar-username: #9ca3af;
+  
+  --app-card-bg: #111827;
+  --app-border-color: #1f2937;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   height: 100%;
   font-family: Inter, sans-serif;
+  background-color: var(--app-bg-color);
+  color: var(--app-text-color);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 * {

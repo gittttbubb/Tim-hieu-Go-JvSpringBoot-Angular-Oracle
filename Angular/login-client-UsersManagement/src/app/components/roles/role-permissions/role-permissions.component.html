@@ -27,7 +27,7 @@
                 <td><p-checkbox [(ngModel)]="row.granted" [binary]="true"></p-checkbox></td>
                 <td><p-select [options]="scopes" [(ngModel)]="row.dataScope"></p-select></td>
                 <td>
-                    <div class="flex gap-2">
+                    <div class="btn-actions">
                         <p-button icon="pi pi-save" severity="success" (onClick)="savePermission(row)"></p-button>
                         <p-button icon="pi pi-trash" severity="danger" (onClick)="removePermission(row)"></p-button>
                     </div>

@@ -58,12 +58,12 @@
         margin: 0;
         font-size: 1.5rem;
         font-weight: 600;
-        color: #0f172a;
+        color: var(--app-text-color);
     }
 
     p {
         margin: 0.25rem 0 0;
-        color: #64748b;
+        color: var(--app-topbar-username);
     }
 }
 
@@ -75,8 +75,8 @@
     overflow-y: hidden;
 
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    background: white;
+    border: 1px solid var(--app-border-color);
+    background: var(--app-card-bg);
 }
 
 .actions {
@@ -100,20 +100,20 @@
     }
 
     .p-datatable-thead>tr>th {
-        background: #f8fafc;
-        color: #334155;
+        background: var(--app-bg-color);
+        color: var(--app-text-color);
         font-weight: 600;
         white-space: nowrap;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--app-border-color);
     }
 
     .p-datatable-tbody>tr>td {
         white-space: nowrap;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--app-border-color);
     }
 
     .p-datatable-tbody>tr:hover {
-        background: #f8fafc;
+        background: var(--app-sidebar-hover-bg);
     }
 
     .p-tag {
