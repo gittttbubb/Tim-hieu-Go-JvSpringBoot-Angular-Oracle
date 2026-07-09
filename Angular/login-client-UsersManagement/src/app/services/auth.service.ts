@@ -15,10 +15,17 @@ export class AuthService {
         return this.http.post<ApiResponse<LoginResponse>>(`${environment.apiUrl}/auth/login`, request);
     }
 
-    resetPassword(userId: string) {
+    adminResetPassword(userId: string) {
         return this.http.post<ApiResponse<TempPasswordResponse>>(`${environment.apiUrl}/auth/reset-password/${userId}`, {});
     }
     changePassword(payload: ChangePasswordRequest) {
         return this.http.post<ApiResponse<any>>(`${environment.apiUrl}/auth/change-password`, payload);
+    }
+
+    forgotPassword(email: string) {
+        return this.http.post(`${environment.apiUrl}/auth/forgot-password`, { email });
+    }
+    userResetPassword(token: string, newPassword: string, confirmPassword: string) {
+        return this.http.post(`${environment.apiUrl}/auth/reset-password`, { token, newPassword, confirmPassword });
     }
 }

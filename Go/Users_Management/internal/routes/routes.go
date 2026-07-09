@@ -32,6 +32,7 @@ func RegisterAllRoutes(app *fiber.App, cfg RouteConfig) {
 func AuthRoutes(api fiber.Router, cfg RouteConfig) {
 	auth := api.Group("/auth")
 	auth.Post("/login", cfg.AuthHandler.Login)
+	auth.Post("/reset-password", cfg.AuthHandler.ResetPassword)
 	auth.Post("/forgot-password", cfg.AuthHandler.ForgotPassword)
 	auth.Post("/reset-password/:id", cfg.AuthMiddleware.RequireAuth(), cfg.PermissionMiddleware.Require("USER_UPDATE"), cfg.AuthHandler.AdminResetPassword)
 	auth.Post("/change-password", cfg.AuthMiddleware.RequireAuth(), cfg.AuthHandler.ChangePassword)

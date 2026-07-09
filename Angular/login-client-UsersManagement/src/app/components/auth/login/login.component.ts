@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -13,7 +13,7 @@ import { AuthStore } from '../../../store/auth.store';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, PasswordModule],
+  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, PasswordModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

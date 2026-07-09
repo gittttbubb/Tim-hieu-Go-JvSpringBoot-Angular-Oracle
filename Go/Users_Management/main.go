@@ -7,6 +7,7 @@ import (
 	"go-rbac-system/internal/bootstrap"
 	"go-rbac-system/internal/config"
 	"go-rbac-system/internal/routes"
+	// "go-rbac-system/internal/service"
 )
 
 func main() {
@@ -14,6 +15,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// smtpHost := cfg.SMTP.Host
+	// smtpPort := cfg.SMTP.Port
+	// emailService := service.NewEmailService(
+	// 	cfg.SMTP.Host,
+	// 	cfg.SMTP.Port,
+	// 	cfg.SMTP.Username,
+	// 	cfg.SMTP.Password,
+	// 	cfg.SMTP.From,
+	// )
 	db, err := bootstrap.InitDatabase(cfg)
 	if err != nil {
 		log.Fatal(err)

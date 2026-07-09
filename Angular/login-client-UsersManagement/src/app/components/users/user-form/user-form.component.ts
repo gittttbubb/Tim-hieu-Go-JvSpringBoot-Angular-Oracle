@@ -313,7 +313,7 @@ export class UserFormComponent implements OnInit {
       message: 'Mật khẩu tạm thời sẽ được tạo. Tiếp tục?',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.authService.resetPassword(this.userId!)
+        this.authService.adminResetPassword(this.userId!)
           .subscribe({
             next: (res) => {
               this.tempPassword = res.data.temporaryPassword;

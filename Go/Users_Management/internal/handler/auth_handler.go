@@ -64,20 +64,52 @@ func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 }
 
 func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
-	var req dto.ForgotPasswordRequest
+    var req dto.ForgotPasswordRequest
+    if err := c.BodyParser(&req); err != nil {
+        return response.Error(
+            c,
+            fiber.StatusBadRequest,
+            "invalid request body",
+        )
+    }
+    ip := c.IP()
+    ua := c.Get("User-Agent")
+    err := h.passwordResetService.ForgotPassword(
+        &req,
+        &ip,
+        &ua,
+    )
+    if err != nil {
+        return response.Error(
+            c,
+            fiber.StatusInternalServerError,
+            err.Error(),
+        )
+    }
+    return response.Success(c, fiber.Map{
+        "message": "Email khôi phục mật khẩu đã được gửi.",
+    })
+}
+
+func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
+	var req dto.ResetPasswordRequest
 	if err := c.BodyParser(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, "invalid request body")
+		return response.Error(
+			c,
+			fiber.StatusBadRequest,
+			"invalid request body",
+		)
 	}
-	ip := c.IP()
-	ua := c.Get("User-Agent")
-	token, err := h.passwordResetService.ForgotPassword(&req, &ip, &ua)
+	err := h.passwordResetService.ResetPassword(&req)
 	if err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
+		return response.Error(
+			c,
+			fiber.StatusBadRequest,
+			err.Error(),
+		)
 	}
-	// production: không trả token ra ngoài
 	return response.Success(c, fiber.Map{
-		"message": "reset token generated",
-		"token":   token, // dev only
+		"message": "password reset successfully",
 	})
 }
 

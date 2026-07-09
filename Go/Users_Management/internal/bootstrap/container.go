@@ -50,7 +50,23 @@ func NewContainer(cfg *config.Config, db *sql.DB) *Container {
 		userRepo,
 		permissionRepo,
 	)
-	passwordResetService := service.NewPasswordResetService(userRepo, passwordResetRepo, auditRepo)
+	emailService := service.NewEmailService(
+		cfg.SMTP.Host,
+		cfg.SMTP.Port,
+		cfg.SMTP.Username,
+		cfg.SMTP.Password,
+		cfg.SMTP.From,
+	)
+// 	err := emailService.Send(
+// 	"nvthang7891011@gmail.com",
+// 	"SMTP Test",
+// 	"<h1>Hello</h1>",
+// )
+
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+	passwordResetService := service.NewPasswordResetService(userRepo, passwordResetRepo, auditRepo, emailService, cfg.Frontend.URL,)
 	auditService := service.NewAuditService(auditRepo)
 
 	// middleware

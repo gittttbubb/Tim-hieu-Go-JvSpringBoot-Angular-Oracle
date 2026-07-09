@@ -31,11 +31,11 @@ export class ChangePasswordComponent {
     oldPassword: ['', Validators.required],
     newPassword: ['',
       [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.maxLength(100),
-      strongPasswordValidator()
-    ]
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(100),
+        strongPasswordValidator()
+      ]
     ],
     confirmPassword: ['', Validators.required]
   });
@@ -58,7 +58,7 @@ export class ChangePasswordComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Passwords do not match'
+        detail: 'Mật khẩu mới không khớp với mật khẩu xác nhận'
       });
       return;
     }
@@ -66,7 +66,7 @@ export class ChangePasswordComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'New password must be different from current password'
+        detail: 'Mật khẩu mới không được giống với mật khẩu cũ'
       });
       return;
     }
@@ -81,7 +81,7 @@ export class ChangePasswordComponent {
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: 'Password changed successfully'
+            detail: 'Đổi mật khẩu thành công'
           });
           this.form.reset();
           this.logout();
@@ -93,7 +93,7 @@ export class ChangePasswordComponent {
             summary: 'Error',
             detail:
               err.error?.message ??
-              'Change password failed'
+              'Đổi mật khẩu thất bại'
           });
         }
       });
@@ -107,7 +107,7 @@ export class ChangePasswordComponent {
       oldPassword === newPassword
     );
   }
-    back(): void {
+  back(): void {
     this.router.navigate(['/']);
   }
   logout(): void {
