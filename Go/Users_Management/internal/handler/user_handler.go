@@ -68,7 +68,7 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := validator.Validate.Struct(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
+		return response.ValidationError(c, err)
 	}
 	actorID := c.Locals(constants.ContextUserID).(string)
 	actor := c.Locals(constants.ContextUsername).(string)
@@ -94,7 +94,7 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := validator.Validate.Struct(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
+		return response.ValidationError(c, err)
 	}
 
 	actorID := c.Locals(constants.ContextUserID).(string)
@@ -205,7 +205,7 @@ func (h *UserHandler) AssignOverride(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := validator.Validate.Struct(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
+		return response.ValidationError(c, err)
 	}
 	createdBy := c.Locals(constants.ContextUserID).(string)
 	err := h.overrideService.Assign(&req, createdBy)
@@ -239,7 +239,7 @@ func (h *UserHandler) UpdateRole(c *fiber.Ctx) error {
         return response.Error(c, fiber.StatusBadRequest, err.Error())
     }
     if err := validator.Validate.Struct(&req); err != nil {
-        return response.Error(c, fiber.StatusBadRequest, err.Error())
+        return response.ValidationError(c, err)
     }
     actorID := c.Locals(constants.ContextUserID).(string)
 	actor := c.Locals(constants.ContextUsername).(string)

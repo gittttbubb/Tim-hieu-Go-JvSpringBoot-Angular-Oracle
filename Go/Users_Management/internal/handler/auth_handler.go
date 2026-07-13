@@ -34,7 +34,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, "invalid request body")
 	}
 	if err := h.validateStruct(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
+		return response.ValidationError(c, err)
 	}
 	res, err := h.authService.Login(
 		&req,

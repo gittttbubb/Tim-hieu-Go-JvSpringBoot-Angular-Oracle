@@ -11,11 +11,13 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { AuthStore } from '../../../store/auth.store';
 import { strongPasswordValidator } from '../../../shared/validators/password.validator';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-change-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, ButtonModule, PasswordModule, ToastModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, ButtonModule, PasswordModule, ToastModule, TranslatePipe],
   templateUrl: './change-password.component.html',
   styleUrl: './change-password.component.scss'
 })
@@ -25,6 +27,7 @@ export class ChangePasswordComponent {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly authStore = inject(AuthStore);
+  private readonly translationService = inject(TranslationService);
 
   loading = false;
   form = this.fb.nonNullable.group({
@@ -57,16 +60,16 @@ export class ChangePasswordComponent {
     if (this.passwordMismatch()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Mật khẩu mới không khớp với mật khẩu xác nhận'
+        summary: this.translationService.translate('common.error'),
+        detail: this.translationService.translate('auth.changePassword.mismatch')
       });
       return;
     }
     if (this.sameAsOldPassword()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Mật khẩu mới không được giống với mật khẩu cũ'
+        summary: this.translationService.translate('common.error'),
+        detail: this.translationService.translate('auth.changePassword.sameAsOld')
       });
       return;
     }
@@ -80,8 +83,8 @@ export class ChangePasswordComponent {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Đổi mật khẩu thành công'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('auth.changePassword.success')
           });
           this.form.reset();
           this.logout();
@@ -90,10 +93,10 @@ export class ChangePasswordComponent {
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
+            summary: this.translationService.translate('common.error'),
             detail:
               err.error?.message ??
-              'Đổi mật khẩu thất bại'
+              this.translationService.translate('auth.changePassword.failed')
           });
         }
       });

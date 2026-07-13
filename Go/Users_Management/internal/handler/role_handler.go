@@ -85,7 +85,7 @@ func (h *RoleHandler) Create(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := validator.Validate.Struct(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
+		return response.ValidationError(c, err)
 	}
 	err := h.roleService.Create(&req)
 	if err != nil {
@@ -103,7 +103,7 @@ func (h *RoleHandler) Update(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := validator.Validate.Struct(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
+		return response.ValidationError(c, err)
 	}
 	err := h.roleService.Update(id, &req)
 	if err != nil {
@@ -140,7 +140,7 @@ func (h *RoleHandler) AssignPermission(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := validator.Validate.Struct(&req); err != nil {
-		return response.Error(c, fiber.StatusBadRequest, err.Error())
+		return response.ValidationError(c, err)
 	}
 	err := h.rolePermissionService.Assign(&req)
 	if err != nil {

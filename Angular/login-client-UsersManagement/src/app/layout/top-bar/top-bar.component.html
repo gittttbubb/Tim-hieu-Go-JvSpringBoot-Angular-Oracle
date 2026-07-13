@@ -4,7 +4,7 @@
         <!-- [icon]="collapsed ? 'pi pi-bars' : 'pi pi-angle-left'" -->
         <button pButton text severity="secondary" [icon]="'pi pi-bars'" (click)="toggleSidebar.emit()"></button>
         <div class="page-title">
-            Users Management
+            {{ 'sidebar.title' | translate }}
         </div>
 
     </div>
@@ -19,8 +19,15 @@
             (click)="themeService.toggleTheme()"
             aria-label="Toggle Theme">
         </button>
-        <button pButton severity="secondary" icon="pi pi-lock" label="Đổi mật khẩu" routerLink="/change-password"></button>
-        <button pButton severity="danger" icon="pi pi-sign-out" label="Đăng xuất" (click)="logout()"></button>
+        <button pButton text rounded
+            severity="secondary"
+            (click)="toggleLanguage()"
+            [label]="translationService.currentLang() === 'vi' ? 'EN' : 'VI'"
+            [icon]="'pi pi-globe'"
+            aria-label="Toggle Language">
+        </button>
+        <button pButton severity="secondary" icon="pi pi-lock" [label]="'topbar.changePassword' | translate" routerLink="/change-password"></button>
+        <button pButton severity="danger" icon="pi pi-sign-out" [label]="'topbar.logout' | translate" (click)="logout()"></button>
     </div>
 
 </header>

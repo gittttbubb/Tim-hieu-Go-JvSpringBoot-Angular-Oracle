@@ -8,10 +8,12 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, CardModule, InputTextModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, CardModule, InputTextModule, ButtonModule, TranslatePipe],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss'
 })
@@ -20,6 +22,7 @@ export class ForgotPasswordComponent {
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private router = inject(Router);
+  private translationService = inject(TranslationService);
 
   loading = false;
 
@@ -41,8 +44,8 @@ export class ForgotPasswordComponent {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Link khôi phục mật khẩu đã được gửi tới email của bạn.'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('auth.forgotPassword.success')
           });
         }
       });

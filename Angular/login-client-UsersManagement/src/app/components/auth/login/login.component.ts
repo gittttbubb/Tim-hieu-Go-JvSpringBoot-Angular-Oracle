@@ -9,11 +9,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../services/auth.service';
 import { AuthStore } from '../../../store/auth.store';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, PasswordModule, RouterLink],
+  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, PasswordModule, RouterLink, TranslatePipe],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -24,6 +26,7 @@ export class LoginComponent {
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly translationService = inject(TranslationService);
 
   loading = false;
   form = this.fb.nonNullable.group({
@@ -45,25 +48,29 @@ export class LoginComponent {
           this.authStore.setAuth(loginData);
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Đăng nhập thành công',
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('auth.login.success'),
           });
           if (loginData.mustChangePassword) {
             this.router.navigate(['/change-password']);
             this.messageService.add({
               severity: 'warning',
-              summary: 'Đổi mật khẩu',
-              detail: 'Bạn phải đổi mật khẩu lần đầu đăng nhập',
+              summary: this.translationService.translate('auth.changePassword.title'),
+              detail: this.translationService.translate('auth.login.pendingPasswordChange'),
             });
             return;
           }
           this.router.navigate(['/dashboard']);
         },
         error: error => {
+          const apiMessage = error.error?.message;
+          const translatedDetail = apiMessage
+            ? this.translationService.translate(apiMessage)
+            : this.translationService.translate('auth.login.failed');
           this.messageService.add({
             severity: 'error',
-            summary: 'Login Failed',
-            detail: 'Sai tài khoản hoặc mật khẩu',
+            summary: this.translationService.translate('common.error'),
+            detail: translatedDetail,
           });
         },
       });

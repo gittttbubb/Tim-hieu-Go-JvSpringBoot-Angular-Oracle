@@ -9,10 +9,12 @@ import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { strongPasswordValidator } from '../../../shared/validators/password.validator';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [CommonModule, ReactiveFormsModule, CardModule, PasswordModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, PasswordModule, ButtonModule, TranslatePipe],
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.scss']
 })
@@ -22,6 +24,7 @@ export class ResetPasswordComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private messageService = inject(MessageService);
+  private translationService = inject(TranslationService);
 
   token = '';
   loading = false;
@@ -46,8 +49,8 @@ export class ResetPasswordComponent implements OnInit {
     if (!this.token) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Invalid Link',
-        detail: 'Token khôi phục mật khẩu không hợp lệ.'
+        summary: this.translationService.translate('common.error'),
+        detail: this.translationService.translate('auth.resetPassword.invalidLink')
       });
       this.router.navigate(['/login']);
     }
@@ -57,8 +60,8 @@ export class ResetPasswordComponent implements OnInit {
     if (!this.token) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Token khôi phục mật khẩu không hợp lệ.'
+        summary: this.translationService.translate('common.error'),
+        detail: this.translationService.translate('auth.resetPassword.invalidLink')
       });
       return;
     }
@@ -69,8 +72,8 @@ export class ResetPasswordComponent implements OnInit {
     if (this.passwordMismatch()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Mật khẩu không khớp'
+        summary: this.translationService.translate('common.error'),
+        detail: this.translationService.translate('auth.resetPassword.mismatch')
       });
       return;
     }
@@ -84,8 +87,8 @@ export class ResetPasswordComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Cập nhật mật khẩu thành công.'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('auth.resetPassword.success')
           });
           setTimeout(() => {
             this.router.navigate(['/login']);

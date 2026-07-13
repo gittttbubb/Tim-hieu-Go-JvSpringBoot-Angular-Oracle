@@ -3,7 +3,7 @@
     <div class="logo">
         <i class="pi pi-shield"></i>
         @if (!collapsed) {
-            <span>Users Management</span>
+            <span>{{ 'sidebar.title' | translate }}</span>
         }
     </div>
 
@@ -11,31 +11,31 @@
         <a routerLink="/dashboard" routerLinkActive="active">
             <i class="pi pi-home"></i>
             @if (!collapsed) {
-                <span>Dashboard</span>
+                <span>{{ 'sidebar.dashboard' | translate }}</span>
             }
         </a>
         <a *appHasPermission="permissions.USER_VIEW" routerLink="/users" routerLinkActive="active">
             <i class="pi pi-users"></i>
             @if (!collapsed) {
-                <span>Users</span>
+                <span>{{ 'sidebar.users' | translate }}</span>
             }
         </a>
         <a *appHasPermission="permissions.ROLE_VIEW" routerLink="/roles" routerLinkActive="active">
             <i class="pi pi-id-card"></i>
             @if (!collapsed) {
-                <span>Roles</span>
+                <span>{{ 'sidebar.roles' | translate }}</span>
             }
         </a>
         <a *appHasPermission="permissions.PERMISSION_VIEW" routerLink="/permissions" routerLinkActive="active">
             <i class="pi pi-key"></i>
             @if (!collapsed) {
-                <span>Permissions</span>
+                <span>{{ 'sidebar.permissions' | translate }}</span>
             }
         </a>
         <a *appHasPermission="permissions.AUDIT_VIEW" routerLink="/audits" routerLinkActive="active">
             <i class="pi pi-history"></i>
             @if (!collapsed) {
-                <span>Audits</span>
+                <span>{{ 'sidebar.audits' | translate }}</span>
             }
         </a>
 

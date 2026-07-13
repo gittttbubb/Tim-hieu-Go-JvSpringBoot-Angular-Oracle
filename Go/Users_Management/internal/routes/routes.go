@@ -5,6 +5,7 @@ import (
 
 	"go-rbac-system/internal/handler"
 	"go-rbac-system/internal/middleware"
+	"go-rbac-system/pkg/i18n"
 )
 
 type RouteConfig struct {
@@ -26,6 +27,12 @@ func RegisterAllRoutes(app *fiber.App, cfg RouteConfig) {
 	RoleRoutes(api, cfg)
 	PermissionRoutes(api, cfg)
 	AuditRoutes(api, cfg)
+
+	// LOCALES (Frontend integration)
+	api.Get("/locales/:lang", func(c *fiber.Ctx) error {
+		lang := c.Params("lang")
+		return c.JSON(i18n.GetCatalog(lang))
+	})
 }
 
 // AUTH

@@ -2,23 +2,23 @@
     <div class="login-wrapper">
         <p-card class="login-card">
             <div class="login-header">
-                <h1>User Management</h1>
+                <h1>{{ 'auth.login.subtitle' | translate }}</h1>
             </div>
             <form [formGroup]="form" (ngSubmit)="submit()">
                 <div class="field">
-                    <label>Username</label>
-                    <input pInputText formControlName="username" placeholder="Nhập tài khoản" />
+                    <label>{{ 'auth.login.username' | translate }}</label>
+                    <input pInputText formControlName="username" [placeholder]="'auth.login.usernamePlaceholder' | translate" />
                 </div>
                 <div class="field">
-                    <label>Password</label>
+                    <label>{{ 'auth.login.password' | translate }}</label>
                     <p-password formControlName="password" [feedback]="false" [toggleMask]="true"
-                        placeholder="Nhập mật khẩu">
+                        [placeholder]="'auth.login.passwordPlaceholder' | translate">
                     </p-password>
                 </div>
-                <button pButton type="submit" label="Đăng nhập" [loading]="loading" class="w-full"></button>
+                <button pButton type="submit" [label]="'auth.login.submit' | translate" [loading]="loading" class="w-full"></button>
             </form>
             <div class="link-page">
-                <a routerLink="/forgot-password" class="text-sm text-primary">Quên mật khẩu?</a>
+                <a routerLink="/forgot-password" class="text-sm text-primary">{{ 'auth.login.forgotPasswordLink' | translate }}</a>
             </div>
         </p-card>
     </div>

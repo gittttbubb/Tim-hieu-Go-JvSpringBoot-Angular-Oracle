@@ -7,10 +7,15 @@ import (
 	"go-rbac-system/internal/bootstrap"
 	"go-rbac-system/internal/config"
 	"go-rbac-system/internal/routes"
+	"go-rbac-system/pkg/i18n"
 	// "go-rbac-system/internal/service"
 )
 
 func main() {
+	if err := i18n.Init(); err != nil {
+		log.Fatalf("Failed to initialize i18n: %v", err)
+	}
+
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatal(err)
