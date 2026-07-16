@@ -1,7 +1,7 @@
 <div class="permission-page">
     <div class="page-header">
         <div>
-            <h2>Permissions</h2>
+            <h2>{{ 'permissions.title' | translate }}</h2>
         </div>
     </div>
 
@@ -13,7 +13,7 @@
                 <input
                     pInputText
                     type="text"
-                    placeholder="Search permissions..."
+                    [placeholder]="'permissions.searchPlaceholder' | translate"
                     [(ngModel)]="keyword"
                     (ngModelChange)="onSearchChange($event)" />
                 <button
@@ -40,10 +40,10 @@
             responsiveLayout="scroll">
             <ng-template pTemplate="header">
                 <tr>
-                    <th>Feature Group</th>
-                    <th>Feature Code</th>
-                    <th>Action</th>
-                    <th>Description</th>
+                    <th>{{ 'permissions.fields.group' | translate }}</th>
+                    <th>{{ 'permissions.fields.code' | translate }}</th>
+                    <th>{{ 'permissions.fields.action' | translate }}</th>
+                    <th>{{ 'permissions.fields.description' | translate }}</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-item>
@@ -68,7 +68,7 @@
             <ng-template pTemplate="emptymessage">
                 <tr>
                     <td colspan="4" class="empty-message">
-                        No permissions found
+                        {{ 'permissions.noPermissions' | translate }}
                     </td>
                 </tr>
             </ng-template>

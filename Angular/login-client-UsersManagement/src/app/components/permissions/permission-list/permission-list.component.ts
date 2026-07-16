@@ -14,11 +14,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-permission-list',
   imports: [CommonModule, FormsModule, TableModule, CardModule, InputTextModule, ButtonModule,
-    TagModule, IconFieldModule, InputIconModule],
+    TagModule, IconFieldModule, InputIconModule, TranslatePipe],
   templateUrl: './permission-list.component.html',
   styleUrl: './permission-list.component.scss'
 })

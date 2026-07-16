@@ -14,11 +14,13 @@ import { PermissionService } from '../../../services/permisison.service';
 import { RolePermissionView } from '../../../models/role.model';
 import { FormsModule } from '@angular/forms';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 
 @Component({
   selector: 'app-role-permissions',
-  imports: [CommonModule, FormsModule, TableModule, CheckboxModule, SelectModule, ButtonModule, ToastModule, CardModule, ConfirmDialogModule],
+  imports: [CommonModule, FormsModule, TableModule, CheckboxModule, SelectModule, ButtonModule, ToastModule, CardModule, ConfirmDialogModule, TranslatePipe],
   providers: [MessageService, ConfirmationService],
   templateUrl: './role-permissions.component.html',
   styleUrl: './role-permissions.component.scss'
@@ -30,6 +32,7 @@ export class RolePermissionsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translationService = inject(TranslationService);
 
   roleId = '';
   loading = false;
@@ -75,10 +78,9 @@ export class RolePermissionsComponent implements OnInit {
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
+            summary: this.translationService.translate('common.error'),
             detail:
-              err.error?.message ??
-              'Load permissions failed'
+              err.error?.message ? this.translationService.translate(err.error.message) : 'Load permissions failed'
           });
         }
       });
@@ -95,17 +97,16 @@ export class RolePermissionsComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Permission updated'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('roles.messages.permissionUpdated')
           });
         },
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
+            summary: this.translationService.translate('common.error'),
             detail:
-              err.error?.message ??
-              'Update permission failed'
+              err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('roles.messages.permissionUpdateFailed')
           });
         }
       });
@@ -113,8 +114,8 @@ export class RolePermissionsComponent implements OnInit {
 
   removePermission(row: RolePermissionView): void {
     this.confirmationService.confirm({
-      header: 'Remove Permission',
-      message: `Remove permission "${row.featureCode}_${row.action}" from this role?`,
+      header: this.translationService.translate('roles.rolePermissions'),
+      message: this.translationService.translate('roles.messages.confirmRemovePermission', { permission: `${row.featureCode}_${row.action}` }),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.roleService.removePermission(this.roleId, row.permissionId)
@@ -124,17 +125,16 @@ export class RolePermissionsComponent implements OnInit {
               row.dataScope = 'OWN';
               this.messageService.add({
                 severity: 'success',
-                summary: 'Success',
-                detail: 'Permission removed'
+                summary: this.translationService.translate('common.success'),
+                detail: this.translationService.translate('roles.messages.permissionRemoved')
               });
             },
             error: (err) => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
+                summary: this.translationService.translate('common.error'),
                 detail:
-                  err.error?.message ??
-                  'Remove permission failed'
+                  err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('roles.messages.permissionRemoveFailed')
               });
             }
           });

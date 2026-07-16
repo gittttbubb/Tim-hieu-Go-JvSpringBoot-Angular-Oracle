@@ -12,11 +12,13 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { RoleService } from '../../../services/role.service';
 import { Role } from '../../../models/role.model';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-role-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputTextarea, ButtonModule, CardModule, ToastModule, ConfirmDialogModule],
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputTextarea, ButtonModule, CardModule, ToastModule, ConfirmDialogModule, TranslatePipe],
   providers: [MessageService, ConfirmationService],
   templateUrl: './role-form.component.html',
   styleUrl: './role-form.component.scss'
@@ -28,6 +30,7 @@ export class RoleFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translationService = inject(TranslationService);
 
   roleId = '';
   loading = false;
@@ -101,16 +104,16 @@ export class RoleFormComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Role created'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('roles.messages.createSuccess')
           });
           this.back();
         },
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message ?? 'Created role failed'
+            summary: this.translationService.translate('common.error'),
+            detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('roles.messages.createFailed')
           });
         }
       });
@@ -129,16 +132,16 @@ export class RoleFormComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Role updated'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('roles.messages.updateSuccess')
           });
           this.back();
         },
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message ?? 'updated role failed'
+            summary: this.translationService.translate('common.error'),
+            detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('roles.messages.updateFailed')
           });
         }
       });
@@ -154,8 +157,8 @@ export class RoleFormComponent implements OnInit {
 
   deleteRole(): void {
     this.confirmationService.confirm({
-      header: 'Delete Role',
-      message: `Are you sure you want to delete role "${this.form.getRawValue().displayName}"?`,
+      header: this.translationService.translate('roles.title'),
+      message: this.translationService.translate('roles.messages.confirmDelete', { name: this.form.getRawValue().displayName }),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.loading = true;
@@ -165,16 +168,16 @@ export class RoleFormComponent implements OnInit {
             next: () => {
               this.messageService.add({
                 severity: 'success',
-                summary: 'Success',
-                detail: 'Role deleted successfully'
+                summary: this.translationService.translate('common.success'),
+                detail: this.translationService.translate('roles.messages.deleteSuccess')
               });
               this.back();
             },
             error: (err) => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: err.error?.message ?? 'Delete role failed'
+                summary: this.translationService.translate('common.error'),
+                detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('roles.messages.deleteFailed')
               });
             }
           });

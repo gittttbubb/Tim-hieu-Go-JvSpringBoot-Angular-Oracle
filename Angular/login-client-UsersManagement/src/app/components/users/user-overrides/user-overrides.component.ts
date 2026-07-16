@@ -20,11 +20,13 @@ import { Permission } from '../../../models/permission.model';
 import {
   DataScope
 } from '../../../models/user.model';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 
 @Component({
   selector: 'app-user-overrides',
-  imports: [CommonModule, ReactiveFormsModule, TableModule, ButtonModule, DialogModule, DropdownModule, InputTextModule, InputTextarea, TagModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, TableModule, ButtonModule, DialogModule, DropdownModule, InputTextModule, InputTextarea, TagModule, RouterLink, TranslatePipe],
   templateUrl: './user-overrides.component.html',
   styleUrl: './user-overrides.component.scss'
 })
@@ -37,6 +39,7 @@ export class UserOverridesComponent {
   private readonly permissionService = inject(PermissionService);
   private readonly overrideService = inject(UserService);
   private readonly messageService = inject(MessageService);
+  private readonly translationService = inject(TranslationService);
 
   userId = '';
   user?: UserDetail;
@@ -122,8 +125,8 @@ export class UserOverridesComponent {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Override saved'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('users.messages.overrideSuccess')
           });
           this.dialogVisible = false;
           this.loadOverrides();
@@ -131,15 +134,15 @@ export class UserOverridesComponent {
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message ?? 'Update override failed'
+            summary: this.translationService.translate('common.error'),
+            detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.overrideFailed')
           });
         }
       });
   }
 
   deleteOverride(id: string): void {
-    if (!confirm('Remove override ?')) {
+    if (!confirm(this.translationService.translate('users.messages.overrideDeleteConfirm'))) {
       return;
     }
     this.overrideService.remove(id)
@@ -147,16 +150,16 @@ export class UserOverridesComponent {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Override removed'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('users.messages.overrideDeleteSuccess')
           });
           this.loadOverrides();
         },
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message ?? 'Update override failed'
+            summary: this.translationService.translate('common.error'),
+            detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.overrideDeleteFailed')
           });
         }
       });

@@ -9,9 +9,11 @@ import { TagModule } from 'primeng/tag';
 import { AuditService } from '../../../services/audit.service';
 import { AuditLog } from '../../../models/audit.model';
 
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+
 @Component({
   selector: 'app-audit-detail',
-  imports: [CommonModule, RouterLink, CardModule, ButtonModule, TagModule, DatePipe],
+  imports: [CommonModule, RouterLink, CardModule, ButtonModule, TagModule, DatePipe, TranslatePipe],
   templateUrl: './audit-detail.component.html',
   styleUrl: './audit-detail.component.scss'
 })

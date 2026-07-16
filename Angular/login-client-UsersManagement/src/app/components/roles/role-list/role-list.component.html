@@ -2,7 +2,7 @@
 <p-confirmDialog />
 <div class="page-header">
 
-    <h2>Roles</h2>
+    <h2>{{ 'roles.title' | translate }}</h2>
 
     <div class="header-actions">
 
@@ -11,7 +11,7 @@
             <p-inputicon styleClass="pi pi-search">
             </p-inputicon>
 
-            <input pInputText type="text" placeholder="Search roles..." [(ngModel)]="keyword"
+            <input pInputText type="text" [placeholder]="'roles.searchPlaceholder' | translate" [(ngModel)]="keyword"
                 (ngModelChange)="onSearchChange($event)" />
 
             <button *ngIf="keyword" pButton type="button" icon="pi pi-times" text rounded class="clear-btn"
@@ -20,7 +20,7 @@
 
         </p-iconfield>
 
-        <p-button label="Create Role" icon="pi pi-plus" (onClick)="createRole()">
+        <p-button [label]="'roles.createRole' | translate" icon="pi pi-plus" (onClick)="createRole()">
         </p-button>
 
     </div>
@@ -31,11 +31,11 @@
     [totalRecords]="totalRecords" (onLazyLoad)="onLazyLoad($event)" responsiveLayout="scroll">
     <ng-template pTemplate="header">
         <tr>
-            <th>Name</th>
-            <th>Display Name</th>
-            <th>Description</th>
+            <th>{{ 'roles.fields.name' | translate }}</th>
+            <th>{{ 'roles.fields.displayName' | translate }}</th>
+            <th>{{ 'roles.fields.description' | translate }}</th>
             <th style="width: 300px">
-                Actions
+                {{ 'common.actions' | translate }}
             </th>
         </tr>
     </ng-template>

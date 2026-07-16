@@ -13,6 +13,8 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TableLazyLoadEvent } from 'primeng/table';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -20,7 +22,7 @@ import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
   selector: 'app-role-list',
-  imports: [CommonModule,FormsModule, TableModule, ButtonModule, ConfirmDialogModule, ToastModule, InputTextModule, IconFieldModule, InputIconModule],
+  imports: [CommonModule,FormsModule, TableModule, ButtonModule, ConfirmDialogModule, ToastModule, InputTextModule, IconFieldModule, InputIconModule, TranslatePipe],
   providers: [ConfirmationService, MessageService],
   templateUrl: './role-list.component.html',
   styleUrl: './role-list.component.scss'
@@ -30,6 +32,7 @@ export class RoleListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly translationService = inject(TranslationService);
 
   roles: Role[] = [];
 
@@ -118,16 +121,16 @@ export class RoleListComponent implements OnInit {
 
   deleteRole(role: Role): void {
     this.confirmationService.confirm({
-      message: `Delete role "${role.displayName}" ?`,
-      header: 'Confirm',
+      message: this.translationService.translate('roles.messages.confirmDelete', { name: role.displayName }),
+      header: this.translationService.translate('common.confirm'),
       accept: () => {
         this.roleService.deleteRole(role.id)
           .subscribe({
             next: () => {
               this.messageService.add({
                 severity: 'success',
-                summary: 'Success',
-                detail: 'Role deleted'
+                summary: this.translationService.translate('common.success'),
+                detail: this.translationService.translate('roles.messages.deleteSuccess')
               });
 
               this.loadRoles();
@@ -135,8 +138,8 @@ export class RoleListComponent implements OnInit {
             error: (err) => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: err.error?.message ?? 'Deleted role failed'
+                summary: this.translationService.translate('common.error'),
+                detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('roles.messages.deleteFailed')
               });
             }
           });

@@ -1,71 +1,71 @@
 <div class="audit-detail-page">
     <div class="page-header">
         <div>
-            <h2>Audit Detail</h2>
+            <h2>{{ 'audits.detailTitle' | translate }}</h2>
             <span class="subtitle">
-                Activity information
+                {{ 'audits.subtitle' | translate }}
             </span>
         </div>
-        <button pButton icon="pi pi-arrow-left" label="Back" severity="secondary" [routerLink]="['/audits']"></button>
+        <button pButton icon="pi pi-arrow-left" [label]="'common.back' | translate" severity="secondary" [routerLink]="['/audits']"></button>
     </div>
 
     @if (audit) {
     <p-card>
         <div class="detail-grid">
             <div class="item">
-                <label>Action</label>
+                <label>{{ 'audits.fields.action' | translate }}</label>
                 <p-tag [value]="audit.action"></p-tag>
             </div>
             <div class="item">
-                <label>Actor</label>
+                <label>{{ 'audits.fields.actor' | translate }}</label>
                 <span>{{ audit.actor }}</span>
             </div>
             <div class="item">
-                <label>Actor Id</label>
+                <label>{{ 'audits.fields.actorId' | translate }}</label>
                 <span>{{ audit.actorId || '-' }}</span>
             </div>
             <div class="item">
-                <label>Entity Type</label>
+                <label>{{ 'audits.fields.entityType' | translate }}</label>
                 <span>{{ audit.entityType }}</span>
             </div>
             <div class="item">
-                <label>Entity Id</label>
+                <label>{{ 'audits.fields.entityId' | translate }}</label>
                 <span>{{ audit.entityId }}</span>
             </div>
             <div class="item">
-                <label>Target User</label>
+                <label>{{ 'audits.fields.targetUser' | translate }}</label>
                 <span>{{ audit.targetUserId || '-' }}</span>
             </div>
             <div class="item">
-                <label>IP Address</label>
+                <label>{{ 'audits.fields.ipAddress' | translate }}</label>
                 <span>{{ audit.ipAddress || '-' }}</span>
             </div>
             <div class="item">
-                <label>Timestamp</label>
+                <label>{{ 'audits.fields.timestamp' | translate }}</label>
                 <span>
                     {{ audit.eventTimestamp | date:'dd/MM/yyyy HH:mm:ss' }}
                 </span>
             </div>
             <div class="item full-row">
-                <label>Reason</label>
+                <label>{{ 'audits.fields.reason' | translate }}</label>
                 <span>{{ audit.reason || '-' }}</span>
             </div>
         </div>
 
         
         <div class="json-section">
-            <h4>Before Data</h4>
+            <h4>{{ 'audits.fields.beforeData' | translate }}</h4>
             <pre>{{ formatJson(audit.beforeData) }} </pre>
         </div>
         
         <div class="json-section">
-            <h4>After Data</h4>
+            <h4>{{ 'audits.fields.afterData' | translate }}</h4>
             <pre>{{ formatJson(audit.afterData) }}</pre>
         </div>
 
         @if (audit.metadata) {
         <div class="json-section">
-            <h4>Metadata</h4>
+            <h4>{{ 'audits.fields.metadata' | translate }}</h4>
             <pre>{{ formatJson(audit.metadata) }}</pre>
         </div>
         }

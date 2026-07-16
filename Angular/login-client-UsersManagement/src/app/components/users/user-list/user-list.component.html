@@ -2,19 +2,19 @@
 <div class="user-page">
     <div class="page-header">
         <div>
-            <h2>Users Management</h2>
+            <h2>{{ 'users.title' | translate }}</h2>
         </div>
 
         <div class="header-actions">
             <p-iconfield class="user-search">
                 <p-inputicon styleClass="pi pi-search"></p-inputicon>
-                <input pInputText type="text" placeholder="Search users..." [(ngModel)]="keyword"
+                <input pInputText type="text" [placeholder]="'users.searchPlaceholder' | translate" [(ngModel)]="keyword"
                     (ngModelChange)="onSearchChange($event)" />
                 <button *ngIf="keyword" pButton type="button" icon="pi pi-times" text rounded class="clear-btn"
                     (click)="clearSearch()">
                 </button>
             </p-iconfield>
-            <button pButton icon="pi pi-plus" label="Thêm User" [routerLink]="['/users/create']">
+            <button pButton icon="pi pi-plus" [label]="'users.addUser' | translate" [routerLink]="['/users/create']">
             </button>
         </div>
     </div>
@@ -23,14 +23,14 @@
             [totalRecords]="totalRecords" (onLazyLoad)="onLazyLoad($event)" styleClass="p-datatable-sm">
             <ng-template pTemplate="header">
                 <tr>
-                    <th>Full Name</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Password</th>
-                    <th width="180">Action</th>
+                    <th>{{ 'users.fields.fullName' | translate }}</th>
+                    <th>{{ 'users.fields.username' | translate }}</th>
+                    <th>{{ 'users.fields.email' | translate }}</th>
+                    <th>{{ 'users.fields.phone' | translate }}</th>
+                    <th>{{ 'users.fields.role' | translate }}</th>
+                    <th>{{ 'users.fields.status' | translate }}</th>
+                    <th>{{ 'users.fields.password' | translate }}</th>
+                    <th width="180">{{ 'common.actions' | translate }}</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-user>
@@ -44,7 +44,7 @@
                         <p-tag [value]="user.status" [severity]="getStatusSeverity(user.status)"></p-tag>
                     </td>
                     <td>
-                        <p-tag *ngIf="user.mustChangePassword" value="Must Change" severity="warn"></p-tag>
+                        <p-tag *ngIf="user.mustChangePassword" [value]="'users.fields.mustChange' | translate" severity="warn"></p-tag>
                         <span *ngIf="!user.mustChangePassword">—</span>
                     </td>
                     <td>

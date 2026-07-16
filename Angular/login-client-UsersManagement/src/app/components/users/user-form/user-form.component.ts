@@ -19,13 +19,15 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { PERMISSIONS } from '../../../constants/permission';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 export type UserFormMode = 'create' | 'detail' | 'edit';
 
 @Component({
   selector: 'app-user-form',
   imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextModule, DropdownModule,
-    ButtonModule, TagModule, RouterLink, SelectModule, ConfirmDialogModule, DialogModule, DatePipe, HasPermissionDirective],
+    ButtonModule, TagModule, RouterLink, SelectModule, ConfirmDialogModule, DialogModule, DatePipe, HasPermissionDirective, TranslatePipe],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss'
 })
@@ -41,6 +43,7 @@ export class UserFormComponent implements OnInit {
 
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translationService = inject(TranslationService);
 
   readonly permissions = PERMISSIONS;
 
@@ -55,20 +58,22 @@ export class UserFormComponent implements OnInit {
   user?: UserDetail;
   roles: Role[] = [];
 
-  readonly statuses = [
-    {
-      label: 'Active',
-      value: 'ACTIVE'
-    },
-    {
-      label: 'Locked',
-      value: 'LOCKED'
-    },
-    {
-      label: 'Pending Password Change',
-      value: 'PENDING_PASSWORD_CHANGE'
-    }
-  ];
+  get statuses() {
+    return [
+      {
+        label: this.translationService.translate('users.statusOptions.active'),
+        value: 'ACTIVE'
+      },
+      {
+        label: this.translationService.translate('users.statusOptions.locked'),
+        value: 'LOCKED'
+      },
+      {
+        label: this.translationService.translate('users.statusOptions.pending'),
+        value: 'PENDING_PASSWORD_CHANGE'
+      }
+    ];
+  }
 
   form = this.fb.nonNullable.group({
     tenantId: ['00000000-0000-0000-0000-000000000001'],
@@ -156,20 +161,20 @@ export class UserFormComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.tempPassword = res.data.temporaryPassword;
-          this.passwordDialogTitle = 'User Created';
-          this.passwordDialogMessage = 'User created successfully. Please save the temporary password below.';
+          this.passwordDialogTitle = this.translationService.translate('users.passwordDialog.createdTitle');
+          this.passwordDialogMessage = this.translationService.translate('users.passwordDialog.createdMessage');
           this.showTempPasswordDialog = true;
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'User created successfully'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('users.messages.createSuccess')
           });
         },
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message ?? 'User created failed'
+            summary: this.translationService.translate('common.error'),
+            detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.createFailed')
           });
         }
       });
@@ -193,16 +198,16 @@ export class UserFormComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'User updated'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('users.messages.updateSuccess')
           });
           this.router.navigate(['/users', this.userId]);
         },
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message ?? 'User updated failed'
+            summary: this.translationService.translate('common.error'),
+            detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.updateFailed')
           });
         }
       });
@@ -231,24 +236,24 @@ export class UserFormComponent implements OnInit {
       return;
     }
     this.confirmationService.confirm({
-      header: 'Delete User',
-      message: 'Delete this user?',
+      header: this.translationService.translate('common.confirm'),
+      message: this.translationService.translate('users.messages.deleteConfirm'),
       accept: () => {
         this.userService.delete(this.userId!)
           .subscribe({
             next: () => {
               this.messageService.add({
                 severity: 'success',
-                summary: 'Success',
-                detail: 'User deleted'
+                summary: this.translationService.translate('common.success'),
+                detail: this.translationService.translate('users.messages.deleteSuccess')
               });
               this.router.navigate(['/users']);
             },
             error: (err) => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: err.error?.message ?? 'Deleted user failed'
+                summary: this.translationService.translate('common.error'),
+                detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.deleteFailed')
               });
             }
           });
@@ -265,16 +270,16 @@ export class UserFormComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'User locked'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('users.messages.lockSuccess')
           });
           this.loadUser();
         },
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message ?? 'User locked failed'
+            summary: this.translationService.translate('common.error'),
+            detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.lockFailed')
           });
         }
       });
@@ -289,16 +294,16 @@ export class UserFormComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'User unlocked'
+            summary: this.translationService.translate('common.success'),
+            detail: this.translationService.translate('users.messages.unlockSuccess')
           });
           this.loadUser();
         },
         error: (err) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message ?? 'User unlocked failed'
+            summary: this.translationService.translate('common.error'),
+            detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.unlockFailed')
           });
         }
       });
@@ -309,29 +314,29 @@ export class UserFormComponent implements OnInit {
       return;
     }
     this.confirmationService.confirm({
-      header: 'Reset Password',
-      message: 'Mật khẩu tạm thời sẽ được tạo. Tiếp tục?',
+      header: this.translationService.translate('common.confirm'),
+      message: this.translationService.translate('users.passwordDialog.confirmReset'),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.authService.adminResetPassword(this.userId!)
           .subscribe({
             next: (res) => {
               this.tempPassword = res.data.temporaryPassword;
-              this.passwordDialogTitle = 'Password Reset';
-              this.passwordDialogMessage = 'Password has been reset successfully. Please provide this temporary password to the user.';
+              this.passwordDialogTitle = this.translationService.translate('users.passwordDialog.resetTitle');
+              this.passwordDialogMessage = this.translationService.translate('users.passwordDialog.resetMessage');
               this.showTempPasswordDialog = true;
 
               this.messageService.add({
                 severity: 'success',
-                summary: 'Success',
-                detail: 'Password reset successfully'
+                summary: this.translationService.translate('common.success'),
+                detail: this.translationService.translate('users.messages.resetSuccess')
               });
             },
             error: (err) => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: err.error?.message ?? 'Password reset failed'
+                summary: this.translationService.translate('common.error'),
+                detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.resetFailed')
               });
             }
           });
@@ -345,8 +350,8 @@ export class UserFormComponent implements OnInit {
     navigator.clipboard.writeText(this.tempPassword);
     this.messageService.add({
       severity: 'success',
-      summary: 'Copied',
-      detail: 'Password copied to clipboard'
+      summary: this.translationService.translate('common.success'),
+      detail: this.translationService.translate('users.passwordDialog.copied')
     });
   }
 

@@ -6,15 +6,15 @@
             <div class="page-header">
                 <div>
                     @if (mode === 'create') {
-                    <h2 class="page-title">Create Role</h2>
+                    <h2 class="page-title">{{ 'roles.createRole' | translate }}</h2>
                     }
 
                     @if (mode === 'view') {
-                    <h2 class="page-title">Role Detail</h2>
+                    <h2 class="page-title">{{ 'roles.roleDetail' | translate }}</h2>
                     }
 
                     @if (mode === 'edit') {
-                    <h2 class="page-title">Edit Role</h2>
+                    <h2 class="page-title">{{ 'roles.editRole' | translate }}</h2>
                     }
                 </div>
             </div>
@@ -23,32 +23,32 @@
             <div class="form-grid">
                 <div class="form-field">
                     <label for="name">
-                        Name
+                        {{ 'roles.fields.name' | translate }}
                         <span class="required">*</span>
                     </label>
                     <input id="name" pInputText formControlName="name" class="w-full" />
                     @if (form.controls.name.invalid && form.controls.name.touched) {
                     <small class="error-text">
-                        Name is required
+                        {{ 'roles.validation.nameRequired' | translate }}
                     </small>
                     }
                 </div>
                 <div class="form-field">
                     <label for="displayName">
-                        Display Name
+                        {{ 'roles.fields.displayName' | translate }}
                         <span class="required">*</span>
                     </label>
                     <input id="displayName" pInputText formControlName="displayName" class="w-full" />
                     @if (form.controls.displayName.invalid && form.controls.displayName.touched) {
                     <small class="error-text">
-                        Display Name is required
+                        {{ 'roles.validation.displayNameRequired' | translate }}
                     </small>
                     }
                 </div>
 
                 <div class="form-field full-row">
                     <label for="description">
-                        Description
+                        {{ 'roles.fields.description' | translate }}
                     </label>
                     <textarea id="description" pInputTextarea rows="5" formControlName="description"
                         class="w-full"></textarea>
@@ -58,22 +58,22 @@
 
             <div class="action-buttons">
                 @if (mode === 'create') {
-                <p-button label="Save" icon="pi pi-save" [loading]="loading" (onClick)="save()"></p-button>
+                <p-button [label]="'common.save' | translate" icon="pi pi-save" [loading]="loading" (onClick)="save()"></p-button>
                 }
 
                 @if (mode === 'edit') {
-                <p-button label="Update" icon="pi pi-check" [loading]="loading" (onClick)="update()"></p-button>
+                <p-button [label]="'common.update' | translate" icon="pi pi-check" [loading]="loading" (onClick)="update()"></p-button>
                 }
 
                 @if (mode === 'view') {
-                <p-button label="Edit" icon="pi pi-pencil" severity="warn" (onClick)="goEdit()"></p-button>
-                <p-button label="Delete" icon="pi pi-trash" severity="danger" [loading]="loading"
+                <p-button [label]="'common.edit' | translate" icon="pi pi-pencil" severity="warn" (onClick)="goEdit()"></p-button>
+                <p-button [label]="'common.delete' | translate" icon="pi pi-trash" severity="danger" [loading]="loading"
                     (onClick)="deleteRole()">
                 </p-button>
 
                 }
 
-                <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" (onClick)="back()"></p-button>
+                <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" severity="secondary" (onClick)="back()"></p-button>
 
             </div>
         </form>

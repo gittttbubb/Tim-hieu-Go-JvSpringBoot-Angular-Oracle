@@ -1,7 +1,7 @@
 <div class="override-page">
     <div class="page-header">
         <div>
-            <h2>User Permission Overrides</h2>
+            <h2>{{ 'users.permissionOverrides' | translate }}</h2>
             <p>
                 {{ user?.fullName }}
                 -
@@ -9,20 +9,20 @@
             </p>
         </div>
         <div class="button-group">
-            <button pButton type="button" icon="pi pi-arrow-left" severity="secondary" label="Back"
+            <button pButton type="button" icon="pi pi-arrow-left" severity="secondary" [label]="'common.back' | translate"
                 [routerLink]="['/users', userId]" style="right: 10px;"></button>
-            <button pButton icon="pi pi-plus" label="Add Override" (click)="openDialog()"></button>
+            <button pButton icon="pi pi-plus" [label]="'users.addOverride' | translate" (click)="openDialog()"></button>
         </div>
     </div>
 
     <p-table [value]="overrides" [loading]="loading">
         <ng-template pTemplate="header">
             <tr>
-                <th>Permission</th>
-                <th>Type</th>
-                <th>Scope</th>
-                <th>Reason</th>
-                <th width="120">Action</th>
+                <th>{{ 'users.fields.permission' | translate }}</th>
+                <th>{{ 'users.fields.type' | translate }}</th>
+                <th>{{ 'users.fields.dataScope' | translate }}</th>
+                <th>{{ 'users.fields.reason' | translate }}</th>
+                <th width="120">{{ 'common.actions' | translate }}</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
@@ -31,7 +31,7 @@
                     {{ getPermissionName(item.permissionId) }}
                 </td>
                 <td>
-                    <p-tag [value]="item.granted ? 'Grant' : 'Deny'" [severity]="item.granted ? 'success' : 'danger'">
+                    <p-tag [value]="(item.granted ? 'users.fields.grant' : 'users.fields.deny') | translate" [severity]="item.granted ? 'success' : 'danger'">
                     </p-tag>
                 </td>
                 <td>
@@ -49,11 +49,11 @@
     </p-table>
 </div>
 
-<p-dialog [(visible)]="dialogVisible" header="Assign Override" [modal]="true" [style]="{ width: '600px' }">
+<p-dialog [(visible)]="dialogVisible" [header]="'users.assignOverride' | translate" [modal]="true" [style]="{ width: '600px' }">
     <form [formGroup]="form" class="override-form">
         <div class="field">
             <label>
-                Permission
+                {{ 'users.fields.permission' | translate }}
             </label>
             <p-dropdown formControlName="permissionId" [options]="permissions" optionLabel="featureCode"
                 optionValue="id">
@@ -61,7 +61,7 @@
         </div>
         <div class="field">
             <label>
-                Data Scope
+                {{ 'users.fields.dataScope' | translate }}
             </label>
             <p-dropdown formControlName="dataScope" [options]="[
                     'OWN',
@@ -72,7 +72,7 @@
         </div>
         <div class="field">
             <label>
-                Reason
+                {{ 'users.fields.reason' | translate }}
             </label>
             <textarea pInputTextarea rows="3" formControlName="reason">
             </textarea>
@@ -80,13 +80,13 @@
         </div>
         <div class="field">
             <label>
-                Grant Permission
+                {{ 'users.fields.grantPermission' | translate }}
             </label>
             <input type="checkbox" formControlName="granted">
         </div>
     </form>
     <ng-template pTemplate="footer">
-        <button pButton label="Save" (click)="saveOverride()">
+        <button pButton [label]="'common.save' | translate" (click)="saveOverride()">
         </button>
     </ng-template>
 

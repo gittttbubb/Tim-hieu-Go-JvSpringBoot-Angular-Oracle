@@ -4,11 +4,11 @@
         <div>
             <h2>
                 @if (isCreate()) {
-                Create User
+                {{ 'users.createUser' | translate }}
                 } @else if (isEdit()) {
-                Edit User
+                {{ 'users.editUser' | translate }}
                 } @else {
-                User Detail
+                {{ 'users.userDetail' | translate }}
                 }
             </h2>
 
@@ -16,10 +16,10 @@
 
         <div class="header-actions">
             @if (isDetail()) {
-            <button pButton icon="pi pi-arrow-left" label="Back" severity="secondary"
+            <button pButton icon="pi pi-arrow-left" [label]="'common.back' | translate" severity="secondary"
                 [routerLink]="['/users']"></button>
-            <button pButton icon="pi pi-pencil" label="Edit" severity="info" (click)="goEdit()"></button>
-            <button pButton icon="pi pi-key" label="Permissions overrides" severity="secondary"
+            <button pButton icon="pi pi-pencil" [label]="'common.edit' | translate" severity="info" (click)="goEdit()"></button>
+            <button pButton icon="pi pi-key" [label]="'users.actions.overrides' | translate" severity="secondary"
                 [routerLink]="['/users/overrides', userId]">
             </button>
             }
@@ -30,31 +30,31 @@
         <form [formGroup]="form" (ngSubmit)="save()">
             <div class="form-grid">
                 <div class="field">
-                    <label>Full Name</label>
+                    <label>{{ 'users.fields.fullName' | translate }}</label>
                     <input pInputText formControlName="fullName">
                 </div>
                 <div class="field">
-                    <label>Username</label>
+                    <label>{{ 'users.fields.username' | translate }}</label>
                     <input pInputText formControlName="username">
                 </div>
                 <div class="field">
-                    <label>Email</label>
+                    <label>{{ 'users.fields.email' | translate }}</label>
                     <input pInputText formControlName="email">
                 </div>
                 <div class="field">
-                    <label>Phone</label>
+                    <label>{{ 'users.fields.phone' | translate }}</label>
                     <input pInputText formControlName="phone">
                 </div>
                 <div class="field" *appHasPermission="permissions.ROLE_UPDATE">
-                    <label>Role</label>
+                    <label>{{ 'users.fields.role' | translate }}</label>
                     <p-select formControlName="roleId" [options]="roles" optionLabel="displayName" optionValue="id"
-                        placeholder="Select Role">
+                        [placeholder]="'users.fields.selectRole' | translate">
                     </p-select>
                 </div>
 
                 @if (!isCreate()) {
                 <div class="field">
-                    <label>Status</label>
+                    <label>{{ 'users.fields.status' | translate }}</label>
                     <p-select formControlName="status" [options]="statuses" optionLabel="label"
                         optionValue="value"></p-select>
                 </div>
@@ -64,11 +64,11 @@
             @if (user && !isCreate()) {
             <div class="meta-section">
                 <div class="meta-item">
-                    <span>Created</span>
+                    <span>{{ 'users.fields.created' | translate }}</span>
                     <strong>{{ user.createdAt | date:'dd/MM/yyyy HH:mm:ss'}}</strong>
                 </div>
                 <div class="meta-item">
-                    <span>Updated</span>
+                    <span>{{ 'users.fields.updated' | translate }}</span>
                     <strong>{{ user.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</strong>
                 </div>
             </div>
@@ -76,23 +76,23 @@
 
             <div class="form-actions">
                 @if (isCreate()) {
-                <button pButton type="submit" icon="pi pi-save" label="Create" [loading]="loading"></button>
+                <button pButton type="submit" icon="pi pi-save" [label]="'common.save' | translate" [loading]="loading"></button>
                 }
                 @if (isEdit()) {
-                <button pButton type="submit" icon="pi pi-save" label="Update" [loading]="loading"></button>
-                <button pButton type="button" severity="secondary" label="Cancel"
+                <button pButton type="submit" icon="pi pi-save" [label]="'common.update' | translate" [loading]="loading"></button>
+                <button pButton type="button" severity="secondary" [label]="'common.cancel' | translate"
                     [routerLink]="['/users', userId]"></button>
                 }
                 @if (isDetail()) {
-                <button pButton type="button" severity="warn" icon="pi pi-lock" label="Lock"
+                <button pButton type="button" severity="warn" icon="pi pi-lock" [label]="'users.actions.lock' | translate"
                     (click)="lockUser()"></button>
-                <button pButton type="button" severity="success" icon="pi pi-lock-open" label="Unlock"
+                <button pButton type="button" severity="success" icon="pi pi-lock-open" [label]="'users.actions.unlock' | translate"
                     (click)="unlockUser()">
                 </button>
-                <button pButton type="button" severity="contrast" icon="pi pi-refresh" label="Reset Password"
+                <button pButton type="button" severity="contrast" icon="pi pi-refresh" [label]="'users.actions.resetPassword' | translate"
                     (click)="resetPassword()">
                 </button>
-                <button pButton type="button" severity="danger" icon="pi pi-trash" label="Delete"
+                <button pButton type="button" severity="danger" icon="pi pi-trash" [label]="'common.delete' | translate"
                     (click)="deleteUser()">
                 </button>
                 }
@@ -111,11 +111,11 @@
                 {{ tempPassword }}
             </div>
             <small class="password-note">
-                User must change this password on next login.
+                {{ 'users.passwordDialog.mustChangeNext' | translate }}
             </small>
             <div class="dialog-actions">
-                <button pButton type="button" icon="pi pi-copy" label="Copy Password" (click)="copyPassword()"></button>
-                <button pButton type="button" severity="secondary" label="Close"
+                <button pButton type="button" icon="pi pi-copy" [label]="'users.actions.copyPassword' | translate" (click)="copyPassword()"></button>
+                <button pButton type="button" severity="secondary" [label]="'common.cancel' | translate"
                     (click)="closePasswordDialog()">
                 </button>
             </div>

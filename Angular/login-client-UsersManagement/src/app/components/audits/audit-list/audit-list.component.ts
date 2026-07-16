@@ -18,11 +18,12 @@ import { TableLazyLoadEvent } from 'primeng/table';
 
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-audit-list',
   imports: [CommonModule, FormsModule, RouterLink, TableModule, CardModule, InputTextModule, TagModule,
-    ButtonModule, DatePipe, IconFieldModule, InputIconModule],
+    ButtonModule, DatePipe, IconFieldModule, InputIconModule, TranslatePipe],
   templateUrl: './audit-list.component.html',
   styleUrl: './audit-list.component.scss'
 })

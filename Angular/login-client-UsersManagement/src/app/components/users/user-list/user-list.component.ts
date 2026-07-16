@@ -17,11 +17,13 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { TranslationService } from '../../../services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-user-list',
   imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, ProgressSpinnerModule,
-    RouterLink, ConfirmDialogModule, InputTextModule, IconFieldModule, InputIconModule,],
+    RouterLink, ConfirmDialogModule, InputTextModule, IconFieldModule, InputIconModule, TranslatePipe],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss'
 })
@@ -30,6 +32,7 @@ export class UserListComponent implements OnInit {
   private readonly roleService = inject(RoleService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translationService = inject(TranslationService);
   private readonly searchSubject = new Subject<string>();
 
   users: UserList[] = [];
@@ -109,8 +112,8 @@ export class UserListComponent implements OnInit {
 
   deleteUser(id: string): void {
     this.confirmationService.confirm({
-      header: 'Delete User',
-      message: 'Delete this user?',
+      header: this.translationService.translate('common.confirm'),
+      message: this.translationService.translate('users.messages.deleteConfirm'),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.userService.delete(id)
@@ -118,16 +121,16 @@ export class UserListComponent implements OnInit {
             next: () => {
               this.messageService.add({
                 severity: 'success',
-                summary: 'Success',
-                detail: 'User deleted'
+                summary: this.translationService.translate('common.success'),
+                detail: this.translationService.translate('users.messages.deleteSuccess')
               });
               this.loadUsers();
             },
             error: (err) => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: err.error?.message ?? 'Deleted user failed'
+                summary: this.translationService.translate('common.error'),
+                detail: err.error?.message ? this.translationService.translate(err.error.message) : this.translationService.translate('users.messages.deleteFailed')
               });
             }
           });
